@@ -1,6 +1,5 @@
 package com.tatiana.inventory.controller;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.tatiana.inventory.entity.Service;
 import com.tatiana.inventory.exception.NonDeletableObjectException;
 import com.tatiana.inventory.service.ServiceService;
@@ -15,9 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 //todo: описания методов
-//todo: basePath to /api/v1!!!!!
 @RestController
-@RequestMapping(value="/api/v1/service")
+@RequestMapping(value="/service")
 public class ServiceController {
     @Autowired
     ServiceService serviceService;

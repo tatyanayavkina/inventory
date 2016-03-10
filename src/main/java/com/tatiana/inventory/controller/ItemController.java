@@ -15,7 +15,7 @@ import java.util.List;
 //todo: добавить описание методов
 
 @RestController
-@RequestMapping(value="/api/v1/item")
+@RequestMapping(value="/item")
 public class ItemController {
 
     @Autowired

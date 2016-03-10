@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value="/api/v1/purchase")
+@RequestMapping(value="/purchase")
 public class PurchaseController {
     @Autowired
     PurchaseService purchaseService;
