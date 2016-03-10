@@ -57,7 +57,7 @@ public class SubscriptionController {
     }
 
     /**
-     * Checks if requested client has subscrription to service with serviceId
+     * Checks if requested client has subscription to service with serviceId
      * @param serviceId
      * @param email
      * @return HttpEntity<Boolean>

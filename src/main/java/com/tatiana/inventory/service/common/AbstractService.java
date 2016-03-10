@@ -6,6 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * Base class for services
+ * @param <T>
+ */
 public abstract class AbstractService<T extends Serializable> implements CrudOperations<T> {
     private final Class<T> clazz;
 
@@ -38,6 +42,12 @@ public abstract class AbstractService<T extends Serializable> implements CrudOpe
         return getRepo().exists(id);
     }
 
+    /**
+     * Finds entity. If entity not found then throws exception
+     * @param id
+     * @return
+     * @throws ObjectNotFoundException
+     */
     @Override
     public T find(Integer id) throws ObjectNotFoundException{
         Boolean objectExists = exists( id );
@@ -47,6 +57,13 @@ public abstract class AbstractService<T extends Serializable> implements CrudOpe
         return  getRepo().findOne(id);
     }
 
+    /**
+     * Updates entity. If entity not found then throws exception
+     * @param entity
+     * @param id
+     * @return
+     * @throws ObjectNotFoundException
+     */
     @Override
     public T update(final T entity, final Integer id) throws ObjectNotFoundException{
         Boolean objectExists = exists( id );

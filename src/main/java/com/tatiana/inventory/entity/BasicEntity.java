@@ -12,6 +12,9 @@ import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import java.time.ZonedDateTime;
 
+/**
+ * Base class for auditable entities
+ */
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 public class BasicEntity{
