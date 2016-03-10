@@ -23,13 +23,14 @@ public class PurchaseController {
     UserService userService;
     @Autowired
     ItemService itemService;
-    @Autowired
-    BillingService billingService;
 
-    //todo: описания методов
-    //todo: basePath to /api/v1!!!!!
-    //todo: нельзя ли объекдинить методы? они имеют общую часть!
-
+    /**
+     * Creates new purchase for user with requested email
+     * @param itemId
+     * @param email
+     * @return HttpEntity<Purchase>
+     * @throws ObjectNotFoundException
+     */
     @RequestMapping(value="/buy/{itemId}", method= RequestMethod.POST)
     public HttpEntity<Purchase> getItem(@PathVariable("itemId") Integer itemId, @RequestBody String email)
             throws ObjectNotFoundException {
@@ -45,6 +46,13 @@ public class PurchaseController {
         return new ResponseEntity( purchase, HttpStatus.OK );
     }
 
+    /**
+     * Checks if requested client has purchase of item with itemId
+     * @param itemId
+     * @param email
+     * @return
+     * @throws ObjectNotFoundException
+     */
     @RequestMapping(value="/client/{itemId}", method= RequestMethod.POST)
     public HttpEntity<Boolean> isClientHasPurchase(@PathVariable("itemId") Integer itemId, @RequestBody String email)
             throws ObjectNotFoundException {

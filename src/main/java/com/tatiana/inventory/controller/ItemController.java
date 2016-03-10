@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-//todo: добавить описание методов
 
 @RestController
 @RequestMapping(value="/item")
@@ -23,25 +22,47 @@ public class ItemController {
     @Autowired
     PurchaseService purchaseService;
 
+    /**
+     * Finds item with requested id
+     * @param id
+     * @return HttpEntity<Item> - with HttpStatus.OK if it is all OK
+     * @throws ObjectNotFoundException
+     */
     @RequestMapping(value="/{id}", method=RequestMethod.GET)
     public HttpEntity<Item> getItem(@PathVariable("id") Integer id) throws ObjectNotFoundException{
         Item item = itemService.find(id);
         return new ResponseEntity( item, HttpStatus.OK );
     }
 
-    //todo: проверить зачем в path нужен id
+    /**
+     * Updates item with requested id
+     * @param id
+     * @param item
+     * @return HttpEntity<Item> - with HttpStatus.OK if it is all OK
+     * @throws ObjectNotFoundException
+     */
     @RequestMapping(value="/{id}", method=RequestMethod.POST)
-    public HttpEntity<Item> update(@RequestBody Item item) throws ObjectNotFoundException{
-        Item updatedItem = itemService.update(item, item.getId() );
+    public HttpEntity<Item> update(@PathVariable("id") Integer id, @RequestBody Item item)
+            throws ObjectNotFoundException{
+        Item updatedItem = itemService.update(item, id );
         return new ResponseEntity( updatedItem, HttpStatus.OK );
     }
 
+    /**
+     * Creates new item
+     * @param item
+     * @return HttpEntity<Item> - with HttpStatus.OK if it is all OK
+     */
     @RequestMapping(method=RequestMethod.PUT)
     public HttpEntity<Item> create(@RequestBody Item item){
         Item savedItem = itemService.create(item);
         return new ResponseEntity( savedItem, HttpStatus.OK );
     }
 
+    /**
+     * Finds all items
+     * @return HttpEntity<List<Item>> - all items
+     */
     @RequestMapping(method=RequestMethod.GET)
     public HttpEntity<List<Item>> getAll(){
         List<Item> items= itemService.findAll();
@@ -51,6 +72,13 @@ public class ItemController {
         return new ResponseEntity( items, HttpStatus.OK );
     }
 
+    /**
+     * Deletes item if it is no purchase with this item
+     * @param id
+     * @return HttpEntity<String> if it is all OK
+     * @throws ObjectNotFoundException
+     * @throws NonDeletableObjectException
+     */
     @RequestMapping(value = "/{id}",method=RequestMethod.DELETE)
     public HttpEntity<String> deleteItem(@PathVariable("id") Integer id) throws ObjectNotFoundException, NonDeletableObjectException {
         Boolean purchased = purchaseService.existsPurchaseWithItemId( id );

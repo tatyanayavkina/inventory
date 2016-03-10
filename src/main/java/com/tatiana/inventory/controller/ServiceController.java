@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-//todo: описания методов
 @RestController
 @RequestMapping(value="/service")
 public class ServiceController {
@@ -22,24 +21,46 @@ public class ServiceController {
     @Autowired
     SubscriptionService subscriptionService;
 
+    /**
+     * Finds service with requested id
+     * @param id
+     * @return HttpEntity<Service> - with HttpStatus.OK if it is all OK
+     * @throws ObjectNotFoundException
+     */
     @RequestMapping(value="/{id}", method= RequestMethod.GET)
     public HttpEntity<Service> getItem(@PathVariable("id") Integer id) throws ObjectNotFoundException {
         Service service = serviceService.find(id);
         return new ResponseEntity( service, HttpStatus.OK );
     }
 
+    /**
+     * Updates service with requested id
+     * @param service
+     * @return HttpEntity<Service> - with HttpStatus.OK if it is all OK
+     * @throws ObjectNotFoundException
+     */
     @RequestMapping(value="/{id}", method=RequestMethod.POST)
-    public HttpEntity<Service> update(@RequestBody Service service) throws ObjectNotFoundException{
+    public HttpEntity<Service> update(@PathVariable("id") Integer id, @RequestBody Service service)
+            throws ObjectNotFoundException{
         Service savedService = serviceService.update(service, service.getId());
         return new ResponseEntity( savedService, HttpStatus.OK );
     }
 
+    /**
+     * Creates new service
+     * @param service
+     * @return HttpEntity<Service>
+     */
     @RequestMapping(method=RequestMethod.PUT)
     public HttpEntity<Service> create(@RequestBody Service service){
         Service savedService = serviceService.create(service);
         return new ResponseEntity( savedService, HttpStatus.OK );
     }
 
+    /**
+     * Finds all services
+     * @return HttpEntity<List<Service>>
+     */
     @RequestMapping(method=RequestMethod.GET)
     public HttpEntity<List<Service>> getAll(){
         List<Service> services= serviceService.findAll();
@@ -49,6 +70,13 @@ public class ServiceController {
         return new ResponseEntity( services, HttpStatus.OK );
     }
 
+    /**
+     * Deletes service with requested id if it is no subscription on this service
+     * @param id
+     * @return HttpEntity<String>
+     * @throws ObjectNotFoundException
+     * @throws NonDeletableObjectException
+     */
     @RequestMapping(value = "/{id}",method=RequestMethod.DELETE)
     public HttpEntity<String> deleteItem(@PathVariable("id") Integer id) throws ObjectNotFoundException, NonDeletableObjectException {
         Boolean subscribed = subscriptionService.existsSubscriptionWithServiceId(id);
