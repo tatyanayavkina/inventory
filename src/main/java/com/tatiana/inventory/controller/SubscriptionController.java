@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value="/subscription")
+@RequestMapping(value="/subscriptions")
 public class SubscriptionController {
     private final ServiceService serviceService;
     private final SubscriptionService subscriptionService;
