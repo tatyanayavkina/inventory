@@ -1,6 +1,8 @@
 package com.tatiana.inventory.config;
 
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tatiana.inventory.Application;
 import com.tatiana.inventory.auditing.AuditingDateTimeProvider;
 import com.tatiana.inventory.auditing.CurrentTimeDateTimeService;
@@ -16,12 +18,14 @@ import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
+import org.zalando.jackson.datatype.money.MoneyModule;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -71,7 +75,7 @@ public class JpaConfig implements TransactionManagementConfigurer {
         return entityManagerFactoryBean;
     }
 
-    @Bean
+    @Bean(name="transactionManager")
     public PlatformTransactionManager annotationDrivenTransactionManager() {
         return new JpaTransactionManager();
     }
@@ -90,6 +94,15 @@ public class JpaConfig implements TransactionManagementConfigurer {
     @Bean
     DateTimeService currentTimeDateTimeService() {
         return new CurrentTimeDateTimeService();
+    }
+
+    @Bean
+    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
+        MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new MoneyModule());;
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        jsonConverter.setObjectMapper(objectMapper);
+        return jsonConverter;
     }
 
 }

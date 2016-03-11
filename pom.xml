@@ -7,7 +7,7 @@
     <groupId>com.tatiana.inventory</groupId>
     <artifactId>inventory</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     <name>inventory</name>
 
     <parent>
@@ -18,9 +18,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!--<start-class>com.yourcompany.Application</start-class>-->
         <spring.security.version>4.0.1.RELEASE</spring.security.version>
         <java.version>1.8</java.version>
+        <jackson-datatype-money.version>0.6.0</jackson-datatype-money.version>
     </properties>
 
     <dependencies>
@@ -35,6 +35,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -60,6 +65,12 @@
             <groupId>org.javamoney</groupId>
             <artifactId>moneta</artifactId>
             <version>1.0</version>
+        </dependency>
+        <!-- Adds support for money serialization/deserialization -->
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>jackson-datatype-money</artifactId>
+            <version>${jackson-datatype-money.version}</version>
         </dependency>
         <!-- Adds support for Java 8 dates -->
         <dependency>
@@ -91,9 +102,14 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
-
 
 </project>
