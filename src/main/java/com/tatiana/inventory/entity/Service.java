@@ -15,8 +15,8 @@ import java.util.Date;
 @Table(name="service")
 public class Service extends BasicEntity  implements Serializable {
     @Id
-    @GeneratedValue
-    @GenericGenerator(name = "generator", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "services_seq_gen")
+    @SequenceGenerator(name = "services_seq_gen", sequenceName = "services_id_seq")
     @Column(name="id", nullable=false, unique=true, length=11)
     private Integer id;
 

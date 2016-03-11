@@ -9,8 +9,8 @@ import java.io.Serializable;
 @Table(name="inventory_user")
 public class User implements Serializable {
     @Id
-    @GeneratedValue
-    @GenericGenerator(name = "generator", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_seq_gen")
+    @SequenceGenerator(name = "users_seq_gen", sequenceName = "users_id_seq")
     @Column(name="id", nullable=false, unique=true, length=11)
     private Integer id;
 

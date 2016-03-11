@@ -10,8 +10,8 @@ import java.util.Date;
 @Table(name="subscription")
 public class Subscription extends BasicEntity  implements Serializable {
     @Id
-    @GeneratedValue
-    @GenericGenerator(name = "generator", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "subscriptions_seq_gen")
+    @SequenceGenerator(name = "subscriptions_seq_gen", sequenceName = "subscription_id_seq")
     @Column(name="id", nullable=false, unique=true, length=11)
     private Integer id;
 

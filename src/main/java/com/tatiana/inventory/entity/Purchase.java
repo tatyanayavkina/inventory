@@ -9,8 +9,8 @@ import java.io.Serializable;
 @Table(name="purchase")
 public class Purchase extends BasicEntity  implements Serializable {
     @Id
-    @GeneratedValue
-    @GenericGenerator(name = "generator", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "purchases_seq_gen")
+    @SequenceGenerator(name = "purchases_seq_gen", sequenceName = "purchases_id_seq")
     @Column(name="id", nullable=false, unique=true, length=11)
     private Integer id;
 

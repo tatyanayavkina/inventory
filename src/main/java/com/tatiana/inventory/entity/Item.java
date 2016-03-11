@@ -12,8 +12,8 @@ import java.io.Serializable;
 @Table(name="item")
 public class Item extends BasicEntity  implements Serializable {
     @Id
-    @GeneratedValue
-    @GenericGenerator(name = "generator", strategy = "increment")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "items_seq_gen")
+    @SequenceGenerator(name = "items_seq_gen", sequenceName = "items_id_seq")
     @Column(name="id", nullable=false, unique=true, length=11)
     private Integer id;
 
