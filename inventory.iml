@@ -99,6 +99,7 @@
     <orderEntry type="library" name="Maven: com.google.guava:guava:18.0" level="project" />
     <orderEntry type="library" name="Maven: com.zaxxer:HikariCP:2.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.16" level="project" />
+    <orderEntry type="library" name="Maven: org.flywaydb:flyway-core:4.0" level="project" />
     <orderEntry type="library" name="Maven: org.javamoney:moneta:1.0" level="project" />
     <orderEntry type="library" name="Maven: javax.money:money-api:1.0" level="project" />
     <orderEntry type="library" name="Maven: javax.annotation:javax.annotation-api:1.2" level="project" />
