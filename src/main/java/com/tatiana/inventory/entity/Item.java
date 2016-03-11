@@ -1,5 +1,6 @@
 package com.tatiana.inventory.entity;
 
+import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
@@ -22,8 +23,11 @@ public class Item extends BasicEntity  implements Serializable {
     @Column(name="description")
     private String description;
 
-    @Column(name="price")
-    @Type(type = "org.jadira.usertype.moneyandcurrency.moneta.PersistentMoneyAmount")
+    @Columns(columns = {
+            @Column(name="currency"),
+            @Column(name="amount")
+    })
+    @Type(type = "org.jadira.usertype.moneyandcurrency.moneta.PersistentMoneyAmountAndCurrency")
     private MonetaryAmount price;
 
     public Item(){}
