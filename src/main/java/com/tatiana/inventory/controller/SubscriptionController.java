@@ -34,7 +34,7 @@ public class SubscriptionController {
      * @throws ObjectNotFoundException
      */
     @RequestMapping(value="/buy/{serviceId}", method= RequestMethod.POST)
-    public HttpEntity<Subscription> getItem(@PathVariable("serviceId") Integer serviceId, @RequestBody String email)
+    public HttpEntity<Subscription> buyService(@PathVariable("serviceId") Integer serviceId, @RequestBody String email)
             throws ObjectNotFoundException {
 
         Service service = serviceService.find(serviceId);

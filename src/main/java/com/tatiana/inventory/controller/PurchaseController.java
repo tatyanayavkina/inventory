@@ -1,6 +1,5 @@
 package com.tatiana.inventory.controller;
 
-import com.tatiana.inventory.billing.BillingService;
 import com.tatiana.inventory.entity.Item;
 import com.tatiana.inventory.entity.Purchase;
 import com.tatiana.inventory.entity.User;
@@ -32,7 +31,7 @@ public class PurchaseController {
      * @throws ObjectNotFoundException
      */
     @RequestMapping(value="/buy/{itemId}", method= RequestMethod.POST)
-    public HttpEntity<Purchase> getItem(@PathVariable("itemId") Integer itemId, @RequestBody String email)
+    public HttpEntity<Purchase> buyItem(@PathVariable("itemId") Integer itemId, @RequestBody String email)
             throws ObjectNotFoundException {
 
         Item item = itemService.find(itemId);
