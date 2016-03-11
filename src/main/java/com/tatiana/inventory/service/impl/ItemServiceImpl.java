@@ -1,7 +1,6 @@
 package com.tatiana.inventory.service.impl;
 
 import com.tatiana.inventory.entity.Item;
-import com.tatiana.inventory.exception.NonDeletableObjectException;
 import com.tatiana.inventory.repository.ItemRepository;
 import com.tatiana.inventory.service.ItemService;
 import com.tatiana.inventory.service.common.AbstractService;
@@ -29,16 +28,11 @@ public class ItemServiceImpl extends AbstractService<Item> implements ItemServic
 
 
     @Override
-    public void deleteNonPurchasedById(Integer id, Boolean purchased) throws ObjectNotFoundException, NonDeletableObjectException{
+    public void deleteNonPurchasedById(Integer id, Boolean purchased) throws ObjectNotFoundException{
         Boolean itemExists = exists( id );
         if ( !itemExists ){
             throw new ObjectNotFoundException( id, Item.class.getName() );
         }
-
-        if ( purchased ) {
-            throw new NonDeletableObjectException( Item.class, id );
-        }
-
         delete( id );
     }
 }

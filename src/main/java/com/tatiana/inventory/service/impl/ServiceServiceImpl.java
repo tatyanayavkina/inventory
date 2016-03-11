@@ -1,6 +1,5 @@
 package com.tatiana.inventory.service.impl;
 
-import com.tatiana.inventory.exception.NonDeletableObjectException;
 import com.tatiana.inventory.repository.ServiceRepository;
 import com.tatiana.inventory.service.ServiceService;
 import com.tatiana.inventory.service.common.AbstractService;
@@ -29,14 +28,10 @@ public class ServiceServiceImpl extends AbstractService<com.tatiana.inventory.en
 
     @Override
     public void deleteNonSubscribedById(Integer id, Boolean subscribed)
-            throws ObjectNotFoundException, NonDeletableObjectException{
+            throws ObjectNotFoundException{
         Boolean serviceExists = exists( id );
         if ( !serviceExists ){
             throw new ObjectNotFoundException( id, com.tatiana.inventory.entity.Service.class.getName() );
-        }
-
-        if ( subscribed ) {
-            throw new NonDeletableObjectException( com.tatiana.inventory.entity.Service.class, id );
         }
 
         delete( id );
