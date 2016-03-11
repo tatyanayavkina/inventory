@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name="purchase")
+@Table(name="purchases")
 public class Purchase extends BasicEntity  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "purchases_seq_gen")
@@ -14,9 +14,8 @@ public class Purchase extends BasicEntity  implements Serializable {
     @Column(name="id", nullable=false, unique=true, length=11)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name="client_id")
-    private User client;
+    @Column(name="client")
+    private String client;
 
     @ManyToOne
     @JoinColumn(name="item_id")
@@ -41,9 +40,8 @@ public class Purchase extends BasicEntity  implements Serializable {
         }
     }
 
-    public Purchase(){}
 
-    public Purchase(Item item, User client){
+    public Purchase(Item item, String client){
         this.item = item;
         this.client = client;
         this.state = ItemState.CREATED;
@@ -57,11 +55,11 @@ public class Purchase extends BasicEntity  implements Serializable {
         this.id = id;
     }
 
-    public User getClient(){
+    public String getClient(){
         return client;
     }
 
-    public void setClient(User client){
+    public void setClient(String client){
         this.client = client;
     }
 

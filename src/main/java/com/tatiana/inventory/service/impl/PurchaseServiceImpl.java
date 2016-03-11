@@ -3,7 +3,6 @@ package com.tatiana.inventory.service.impl;
 import com.tatiana.inventory.billing.BillingService;
 import com.tatiana.inventory.entity.Item;
 import com.tatiana.inventory.entity.Purchase;
-import com.tatiana.inventory.entity.User;
 import com.tatiana.inventory.repository.PurchaseRepository;
 import com.tatiana.inventory.service.PurchaseService;
 import com.tatiana.inventory.service.common.AbstractService;
@@ -33,13 +32,13 @@ public class PurchaseServiceImpl extends AbstractService<Purchase> implements Pu
         return repo;
     }
 
-    public Purchase findActiveByItemAndClient(Integer itemId, Integer userId){
-        return repo.findByItemAndClientAndState(itemId, userId, Purchase.ItemState.ACTIVE);
+    public Purchase findActiveByItemAndClient(Integer itemId, String client){
+        return repo.findByItemAndClientAndState(itemId, client, Purchase.ItemState.ACTIVE);
     }
 
-    public Boolean existsActiveByItemAndClient(Integer itemId, Integer clientId){
+    public Boolean existsActiveByItemAndClient(Integer itemId, String client){
         Boolean objectExists = false;
-        Purchase purchase = findActiveByItemAndClient( itemId, clientId );
+        Purchase purchase = findActiveByItemAndClient( itemId, client );
         if( purchase != null){
             objectExists = true;
         }
@@ -56,7 +55,7 @@ public class PurchaseServiceImpl extends AbstractService<Purchase> implements Pu
         return objectExists;
     }
 
-    public Purchase make(Item item, User client){
+    public Purchase make(Item item, String client){
         Purchase purchase = new Purchase( item, client );
         purchase = create(purchase);
         if ( billingService.pay( purchase ) ){

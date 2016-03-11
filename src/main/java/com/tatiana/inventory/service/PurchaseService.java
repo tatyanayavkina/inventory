@@ -3,7 +3,6 @@ package com.tatiana.inventory.service;
 
 import com.tatiana.inventory.entity.Item;
 import com.tatiana.inventory.entity.Purchase;
-import com.tatiana.inventory.entity.User;
 import com.tatiana.inventory.service.common.CrudOperations;
 
 /**
@@ -14,18 +13,18 @@ public interface PurchaseService extends CrudOperations<Purchase>{
     /**
      * Finds purchase of item with itemId for client with clientId that has "active" status
      * @param itemId
-     * @param clientId
+     * @param client
      * @return
      */
-    Purchase findActiveByItemAndClient(Integer itemId, Integer clientId);
+    Purchase findActiveByItemAndClient(Integer itemId, String client);
 
     /**
      * Checks if client with clientId has "active" purchase of item with itemId
      * @param itemId
-     * @param clientId
+     * @param client
      * @return
      */
-    Boolean existsActiveByItemAndClient(Integer itemId, Integer clientId);
+    Boolean existsActiveByItemAndClient(Integer itemId, String client);
 
     /**
      * Checks if exists purchase of item with itemId
@@ -40,5 +39,5 @@ public interface PurchaseService extends CrudOperations<Purchase>{
      * @param client
      * @return
      */
-    Purchase make(Item item, User client);
+    Purchase make(Item item, String client);
 }

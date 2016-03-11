@@ -4,7 +4,6 @@ import com.tatiana.inventory.billing.BillingService;
 import com.tatiana.inventory.entity.*;
 import com.tatiana.inventory.service.ServiceService;
 import com.tatiana.inventory.service.SubscriptionService;
-import com.tatiana.inventory.service.UserService;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -15,14 +14,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value="/subscription")
 public class SubscriptionController {
+    private final ServiceService serviceService;
+    private final SubscriptionService subscriptionService;
+    private final BillingService billingService;
+
     @Autowired
-    ServiceService serviceService;
-    @Autowired
-    UserService userService;
-    @Autowired
-    SubscriptionService subscriptionService;
-    @Autowired
-    BillingService billingService;
+    public SubscriptionController(ServiceService serviceService, SubscriptionService subscriptionService,
+                                  BillingService billingService){
+        this.serviceService = serviceService;
+        this.subscriptionService = subscriptionService;
+        this.billingService = billingService;
+    }
 
     //todo: не дописана логика с получением подиски, есть вопросы.
 
@@ -38,11 +40,10 @@ public class SubscriptionController {
             throws ObjectNotFoundException {
 
         Service service = serviceService.find(serviceId);
-        User client = userService.findOrAddUserByEmail(email);
-        Subscription subscription = subscriptionService.findByServiceAndClient( serviceId, client.getId() );
+        Subscription subscription = subscriptionService.findByServiceAndClient( serviceId, email );
 
         if ( subscription == null ){
-            subscription = new Subscription( service, client );
+            subscription = new Subscription( service, email );
             subscriptionService.create(subscription);
         }
 
@@ -67,8 +68,7 @@ public class SubscriptionController {
     public HttpEntity<Boolean> isClientHasPurchase(@PathVariable("serviceId") Integer serviceId, @RequestBody String email)
             throws ObjectNotFoundException {
         Service service = serviceService.find(serviceId);
-        User client = userService.findOrAddUserByEmail(email);
-        Boolean clientHasActiveSubscription = subscriptionService.existsActiveByServiceAndClient( service.getId(), client.getId() );
+        Boolean clientHasActiveSubscription = subscriptionService.existsActiveByServiceAndClient( service.getId(), email );
 
         return new ResponseEntity( clientHasActiveSubscription, HttpStatus.OK );
     }

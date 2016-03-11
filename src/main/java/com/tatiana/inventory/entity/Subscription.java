@@ -1,13 +1,11 @@
 package com.tatiana.inventory.entity;
 
-import org.hibernate.annotations.GenericGenerator;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name="subscription")
+@Table(name="subscriptions")
 public class Subscription extends BasicEntity  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "subscriptions_seq_gen")
@@ -15,9 +13,8 @@ public class Subscription extends BasicEntity  implements Serializable {
     @Column(name="id", nullable=false, unique=true, length=11)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name="client_id")
-    private User client;
+    @Column(name="client")
+    private String client;
 
     @ManyToOne
     @JoinColumn(name="service_id")
@@ -51,9 +48,8 @@ public class Subscription extends BasicEntity  implements Serializable {
         }
     }
 
-    public Subscription(){}
 
-    public Subscription(Service service, User client){
+    public Subscription(Service service, String client){
         this.service = service;
         this.client = client;
         this.state = ServiceState.CREATED;
@@ -75,11 +71,11 @@ public class Subscription extends BasicEntity  implements Serializable {
         this.service = service;
     }
 
-    public User getClient(){
+    public String getClient(){
         return client;
     }
 
-    public void setClient(User client){
+    public void setClient(String client){
         this.client = client;
     }
 

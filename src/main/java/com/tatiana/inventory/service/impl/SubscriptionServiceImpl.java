@@ -27,14 +27,14 @@ public class SubscriptionServiceImpl extends AbstractService<Subscription> imple
     }
 
     @Override
-    public Subscription findByServiceAndClient(Integer serviceId, Integer clientId){
-        return repo.findByServiceAndClient( serviceId, clientId );
+    public Subscription findByServiceAndClient(Integer serviceId, String client){
+        return repo.findByServiceAndClient( serviceId, client );
     }
 
     @Override
-    public  Boolean existsActiveByServiceAndClient(Integer serviceId, Integer clientId){
+    public  Boolean existsActiveByServiceAndClient(Integer serviceId, String client){
         Boolean objectExists = false;
-        Subscription subscription = findByServiceAndClient( serviceId, clientId );
+        Subscription subscription = findByServiceAndClient( serviceId, client );
         if( subscription != null){
             objectExists = true;
         }
@@ -53,7 +53,7 @@ public class SubscriptionServiceImpl extends AbstractService<Subscription> imple
     }
 
     @Override
-    public Subscription findActiveByServiceAndClient(Integer serviceId, Integer clientId){
-        return getRepo().findByServiceAndClientAndState(serviceId, clientId, Subscription.ServiceState.ACTIVE);
+    public Subscription findActiveByServiceAndClient(Integer serviceId, String client){
+        return getRepo().findByServiceAndClientAndState(serviceId, client, Subscription.ServiceState.ACTIVE);
     }
 }

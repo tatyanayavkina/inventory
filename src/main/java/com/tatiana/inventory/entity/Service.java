@@ -12,7 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 @Entity
-@Table(name="service")
+@Table(name="services")
 public class Service extends BasicEntity  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "services_seq_gen")
@@ -61,7 +61,6 @@ public class Service extends BasicEntity  implements Serializable {
         }
     }
 
-    public Service(){}
 
     public Integer getId(){
         return id;

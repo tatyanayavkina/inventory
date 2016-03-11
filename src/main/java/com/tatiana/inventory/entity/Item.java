@@ -9,7 +9,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name="item")
+@Table(name="items")
 public class Item extends BasicEntity  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "items_seq_gen")
@@ -29,8 +29,6 @@ public class Item extends BasicEntity  implements Serializable {
     })
     @Type(type = "org.jadira.usertype.moneyandcurrency.moneta.PersistentMoneyAmountAndCurrency")
     private MonetaryAmount price;
-
-    public Item(){}
 
     public Integer getId(){
         return id;

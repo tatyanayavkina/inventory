@@ -9,20 +9,20 @@ import com.tatiana.inventory.service.common.CrudOperations;
  */
 public interface SubscriptionService extends CrudOperations<Subscription>{
     /**
-     * Finds subscription to service with serviceId for client with clientId
+     * Finds subscription to service with serviceId for client
      * @param serviceId
-     * @param clientId
+     * @param client
      * @return
      */
-    Subscription findByServiceAndClient(Integer serviceId, Integer clientId);
+    Subscription findByServiceAndClient(Integer serviceId, String client);
 
     /**
-     * Checks if exists "active" subscription o service with serviceId for client with clientId
+     * Checks if exists "active" subscription o service with serviceId for client
      * @param serviceId
-     * @param clientId
+     * @param client
      * @return
      */
-    Boolean existsActiveByServiceAndClient(Integer serviceId, Integer clientId);
+    Boolean existsActiveByServiceAndClient(Integer serviceId, String client);
 
     /**
      * Checks if exists subscription to service with serviceId
@@ -32,10 +32,10 @@ public interface SubscriptionService extends CrudOperations<Subscription>{
     Boolean existsSubscriptionWithServiceId(Integer serviceId);
 
     /**
-     * Finds "active" subscription to service with serviceId for client with clientId
+     * Finds "active" subscription to service with serviceId for client
      * @param serviceId
-     * @param clientId
+     * @param client
      * @return
      */
-    Subscription findActiveByServiceAndClient(Integer serviceId, Integer clientId);
+    Subscription findActiveByServiceAndClient(Integer serviceId, String client);
 }

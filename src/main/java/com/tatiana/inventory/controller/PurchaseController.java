@@ -2,10 +2,8 @@ package com.tatiana.inventory.controller;
 
 import com.tatiana.inventory.entity.Item;
 import com.tatiana.inventory.entity.Purchase;
-import com.tatiana.inventory.entity.User;
 import com.tatiana.inventory.service.ItemService;
 import com.tatiana.inventory.service.PurchaseService;
-import com.tatiana.inventory.service.UserService;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -16,12 +14,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value="/purchase")
 public class PurchaseController {
+    private final PurchaseService purchaseService;
+    private final ItemService itemService;
+
     @Autowired
-    PurchaseService purchaseService;
-    @Autowired
-    UserService userService;
-    @Autowired
-    ItemService itemService;
+    public PurchaseController(PurchaseService purchaseService, ItemService itemService){
+        this.purchaseService = purchaseService;
+        this.itemService = itemService;
+    }
 
     /**
      * Creates new purchase for user with requested email
@@ -35,11 +35,10 @@ public class PurchaseController {
             throws ObjectNotFoundException {
 
         Item item = itemService.find(itemId);
-        User client = userService.findOrAddUserByEmail(email);
-        Purchase purchase = purchaseService.findActiveByItemAndClient( itemId, client.getId() );
+        Purchase purchase = purchaseService.findActiveByItemAndClient( itemId, email );
 
         if ( purchase == null ){
-            purchase = purchaseService.make( item, client );
+            purchase = purchaseService.make( item, email );
         }
 
         return new ResponseEntity( purchase, HttpStatus.OK );
@@ -57,8 +56,7 @@ public class PurchaseController {
             throws ObjectNotFoundException {
 
         Item item = itemService.find(itemId);
-        User client = userService.findOrAddUserByEmail(email);
-        Boolean clientHasActivePurchase = purchaseService.existsActiveByItemAndClient( item.getId() , client.getId() );
+        Boolean clientHasActivePurchase = purchaseService.existsActiveByItemAndClient( item.getId() , email );
 
         return new ResponseEntity( clientHasActivePurchase, HttpStatus.OK );
     }
