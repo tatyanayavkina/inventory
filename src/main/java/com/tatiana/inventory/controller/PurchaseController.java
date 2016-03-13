@@ -39,8 +39,7 @@ public class PurchaseController {
      */
     @Async
     @RequestMapping(method= RequestMethod.POST)
-    public CompletableFuture<HttpEntity<Purchase>> buyItem(@RequestBody PurchaseIdentifier identifier)
-            throws ObjectNotFoundException {
+    public CompletableFuture<HttpEntity<Purchase>> buyItem(@RequestBody PurchaseIdentifier identifier) throws ObjectNotFoundException {
         
         Integer itemId = identifier.getResourceId();
         String email = identifier.getClientEmail();
@@ -76,8 +75,7 @@ public class PurchaseController {
      * @return HttpEntity<Boolean>
      */
     @RequestMapping(value="/info", method= RequestMethod.POST)
-    public HttpEntity<Boolean> isClientHasPurchase(@RequestBody PurchaseIdentifier identifier)
-            throws ObjectNotFoundException {
+    public HttpEntity<Boolean> isClientHasPurchase(@RequestBody PurchaseIdentifier identifier){
         Boolean clientHasActivePurchase = false;
         Integer itemId = identifier.getResourceId();
         String email = identifier.getClientEmail();

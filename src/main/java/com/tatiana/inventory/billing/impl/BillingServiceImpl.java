@@ -11,14 +11,14 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 public class BillingServiceImpl implements BillingService{
-    Logger logger = Logger.getLogger( BillingServiceImpl.class );
+    private static final Logger logger = Logger.getLogger( BillingServiceImpl.class );
 
     @Async
     public CompletableFuture<Boolean> pay(Purchase purchase){
         try{
             Thread.sleep(1000L);
         } catch (InterruptedException ex){
-            logger.trace("InterruptedException in BillingService");
+            logger.error("InterruptedException in BillingService");
         }
         return CompletableFuture.completedFuture(true);
     }
@@ -28,7 +28,7 @@ public class BillingServiceImpl implements BillingService{
         try{
             Thread.sleep(1000L);
         } catch (InterruptedException ex){
-            logger.trace("InterruptedException in BillingService");
+            logger.error("InterruptedException in BillingService");
         }
         return CompletableFuture.completedFuture(true);
     }

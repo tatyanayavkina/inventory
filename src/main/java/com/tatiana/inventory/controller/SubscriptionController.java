@@ -36,10 +36,11 @@ public class SubscriptionController {
      * Creates new subscription to service with serviceId for requested user
      * @param identifier
      * @return HttpEntity<Subscription>
+     * @throws ObjectNotFoundException
      */
     @Async
     @RequestMapping(method= RequestMethod.POST)
-    public CompletableFuture<HttpEntity<Subscription>> buyService(@RequestBody PurchaseIdentifier identifier){
+    public CompletableFuture<HttpEntity<Subscription>> buyService(@RequestBody PurchaseIdentifier identifier) throws ObjectNotFoundException{
         Integer serviceId = identifier.getResourceId();
         String email = identifier.getClientEmail();
         Service service = serviceRepository.findOne(serviceId);
@@ -91,8 +92,7 @@ public class SubscriptionController {
     private Subscription createSubscription(Service service, String email){
         Subscription subscription = new Subscription( service, email );
 
-        List<Subscription> activeSubscriptions = subscriptionRepository.findByServiceAndClientAndState( service.getId(), email,
-                Subscription.ServiceState.ACTIVE);
+        List<Subscription> activeSubscriptions = subscriptionRepository.findByServiceAndClientAndState( service.getId(), email, Subscription.ServiceState.ACTIVE);
         // there are no active subscriptions for client
         if ( activeSubscriptions.size() == 0 ){
             // set startDate for new subscription, we will change date if some conditions are true
@@ -100,8 +100,7 @@ public class SubscriptionController {
             // if service should be continuous
             if ( service.getIsContinuous() ){
                 //check expired subscriptions for client
-                List<Subscription> expiredSubscriptions = subscriptionRepository.findByServiceAndClientAndState( service.getId(), email,
-                        Subscription.ServiceState.EXPIRED);
+                List<Subscription> expiredSubscriptions = subscriptionRepository.findByServiceAndClientAndState( service.getId(), email, Subscription.ServiceState.EXPIRED);
                 if ( expiredSubscriptions.size() > 0 ){
                     // set startDate as endDate of last expiredSubscription
                     subscription.setStartDate( expiredSubscriptions.get(0).getEndDate() );
