@@ -10,12 +10,12 @@ import java.util.List;
 //@Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription,Integer> {
 
-    Subscription findByServiceAndClient(Integer serviceId, String client);
+    List<Subscription> findByServiceAndClient(Integer serviceId, String client);
 
     List<Subscription> findByService(Integer serviceId);
 
-    @Query("select p from Subscription p where p.service.id = :serviceId and p.client = :client " +
-            "and p.state = :state")
-    Subscription findByServiceAndClientAndState(@Param("serviceId") Integer serviceId, @Param("client") String client,
+    @Query("select s from Subscription s where s.service.id = :serviceId and s.client = :client " +
+            "and s.state = :state order by s.id desc")
+    List<Subscription> findByServiceAndClientAndState(@Param("serviceId") Integer serviceId, @Param("client") String client,
                                                 @Param("state") Subscription.ServiceState state);
 }

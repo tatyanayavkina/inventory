@@ -3,8 +3,8 @@ package com.tatiana.inventory.controller;
 import com.tatiana.inventory.billing.BillingService;
 import com.tatiana.inventory.entity.*;
 import com.tatiana.inventory.entry.PurchaseIdentifier;
-import com.tatiana.inventory.service.ServiceService;
-import com.tatiana.inventory.service.SubscriptionService;
+import com.tatiana.inventory.repository.ServiceRepository;
+import com.tatiana.inventory.repository.SubscriptionRepository;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -12,18 +12,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value="/subscriptions")
 public class SubscriptionController {
-    private final ServiceService serviceService;
-    private final SubscriptionService subscriptionService;
+    private final ServiceRepository serviceRepository;
+    private final SubscriptionRepository subscriptionRepository;
     private final BillingService billingService;
 
     @Autowired
-    public SubscriptionController(ServiceService serviceService, SubscriptionService subscriptionService,
+    public SubscriptionController(ServiceRepository serviceRepository, SubscriptionRepository subscriptionRepository,
                                   BillingService billingService){
-        this.serviceService = serviceService;
-        this.subscriptionService = subscriptionService;
+        this.serviceRepository = serviceRepository;
+        this.subscriptionRepository = subscriptionRepository;
         this.billingService = billingService;
     }
 
@@ -36,25 +38,27 @@ public class SubscriptionController {
      */
     @RequestMapping(method= RequestMethod.POST)
     public HttpEntity<Subscription> buyService(@RequestBody PurchaseIdentifier identifier){
+        Subscription subscription;
         Integer serviceId = identifier.getResourceId();
         String email = identifier.getClientEmail();
-        Service service = serviceService.find(serviceId);
+        Service service = serviceRepository.findOne(serviceId);
+
         if ( service == null ){
             throw new ObjectNotFoundException( serviceId, Service.class.getName() );
         }
-        Subscription subscription = subscriptionService.findByServiceAndClient( serviceId, email );
+        List<Subscription> subscriptions = subscriptionRepository.findByServiceAndClient( serviceId, email );
 
-        if ( subscription == null ){
+        if ( subscriptions.size() == 0 ){
             subscription = new Subscription( service, email );
-            subscriptionService.create(subscription);
+            subscriptionRepository.save(subscription);
         }
-
+        subscription = new Subscription( service, email );
         if ( billingService.pay( subscription ) ){
             subscription.setActive();
         } else {
             subscription.setState( Subscription.ServiceState.NOFUNDS );
         }
-        subscriptionService.create(subscription);
+        subscriptionRepository.save(subscription);
 
         return new ResponseEntity( subscription, HttpStatus.OK );
     }
@@ -66,9 +70,15 @@ public class SubscriptionController {
      */
     @RequestMapping(value="/info", method= RequestMethod.POST)
     public HttpEntity<Boolean> isClientHasPurchase(@RequestBody PurchaseIdentifier identifier) {
+        Boolean clientHasActiveSubscription = false;
         Integer serviceId = identifier.getResourceId();
         String email = identifier.getClientEmail();
-        Boolean clientHasActiveSubscription = subscriptionService.existsActiveByServiceAndClient( serviceId, email );
+
+        List<Subscription> subscriptions = subscriptionRepository.findByServiceAndClientAndState(serviceId, email, Subscription.ServiceState.ACTIVE);
+
+        if( subscriptions.size() > 0 ){
+            clientHasActiveSubscription = true;
+        }
 
         return new ResponseEntity( clientHasActiveSubscription, HttpStatus.OK );
     }
