@@ -2,6 +2,7 @@ package com.tatiana.inventory.controller;
 
 import com.tatiana.inventory.entity.Item;
 import com.tatiana.inventory.entity.Purchase;
+import com.tatiana.inventory.entry.PurchaseIdentifier;
 import com.tatiana.inventory.service.ItemService;
 import com.tatiana.inventory.service.PurchaseService;
 import org.hibernate.ObjectNotFoundException;
@@ -25,16 +26,17 @@ public class PurchaseController {
 
     /**
      * Creates new purchase for user with requested email
-     * @param itemId
-     * @param email
+     * @param identifier
      * @return HttpEntity<Purchase>
      * @throws ObjectNotFoundException
      */
-    @RequestMapping(value="/buy/{itemId}", method= RequestMethod.POST)
-    public HttpEntity<Purchase> buyItem(@PathVariable("itemId") Integer itemId, @RequestBody String email)
+    @RequestMapping(method= RequestMethod.POST)
+    public HttpEntity<Purchase> buyItem(@RequestBody PurchaseIdentifier identifier)
             throws ObjectNotFoundException {
 
-        Item item = itemService.find(itemId);
+        Integer itemId = identifier.getResourceId();
+        String email = identifier.getClientEmail();
+        Item item = itemService.find( itemId );
         Purchase purchase = purchaseService.findActiveByItemAndClient( itemId, email );
 
         if ( purchase == null ){
@@ -46,18 +48,16 @@ public class PurchaseController {
 
     /**
      * Checks if requested client has purchase of item with itemId
-     * @param itemId
-     * @param email
-     * @return
-     * @throws ObjectNotFoundException
+     * @param identifier
+     * @return HttpEntity<Boolean>
      */
-    @RequestMapping(value="/client/{itemId}", method= RequestMethod.POST)
-    public HttpEntity<Boolean> isClientHasPurchase(@PathVariable("itemId") Integer itemId, @RequestBody String email)
-            throws ObjectNotFoundException {
-
-        Item item = itemService.find(itemId);
-        Boolean clientHasActivePurchase = purchaseService.existsActiveByItemAndClient( item.getId() , email );
+    @RequestMapping(value="/client", method= RequestMethod.POST)
+    public HttpEntity<Boolean> isClientHasPurchase(@RequestBody PurchaseIdentifier identifier) {
+        Integer itemId = identifier.getResourceId();
+        String email = identifier.getClientEmail();
+        Boolean clientHasActivePurchase = purchaseService.existsActiveByItemAndClient( itemId , email );
 
         return new ResponseEntity( clientHasActivePurchase, HttpStatus.OK );
     }
+
 }
