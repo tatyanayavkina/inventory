@@ -37,6 +37,10 @@ public class PurchaseController {
         Integer itemId = identifier.getResourceId();
         String email = identifier.getClientEmail();
         Item item = itemService.find( itemId );
+        if ( item == null ){
+            throw new ObjectNotFoundException( itemId, Item.class.getName() );
+        }
+
         Purchase purchase = purchaseService.findActiveByItemAndClient( itemId, email );
 
         if ( purchase == null ){
@@ -51,8 +55,9 @@ public class PurchaseController {
      * @param identifier
      * @return HttpEntity<Boolean>
      */
-    @RequestMapping(value="/client", method= RequestMethod.POST)
-    public HttpEntity<Boolean> isClientHasPurchase(@RequestBody PurchaseIdentifier identifier) {
+    @RequestMapping(value="/info", method= RequestMethod.POST)
+    public HttpEntity<Boolean> isClientHasPurchase(@RequestBody PurchaseIdentifier identifier)
+            throws ObjectNotFoundException {
         Integer itemId = identifier.getResourceId();
         String email = identifier.getClientEmail();
         Boolean clientHasActivePurchase = purchaseService.existsActiveByItemAndClient( itemId , email );

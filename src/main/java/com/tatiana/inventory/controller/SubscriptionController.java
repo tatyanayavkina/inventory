@@ -2,6 +2,7 @@ package com.tatiana.inventory.controller;
 
 import com.tatiana.inventory.billing.BillingService;
 import com.tatiana.inventory.entity.*;
+import com.tatiana.inventory.entry.PurchaseIdentifier;
 import com.tatiana.inventory.service.ServiceService;
 import com.tatiana.inventory.service.SubscriptionService;
 import org.hibernate.ObjectNotFoundException;
@@ -30,16 +31,17 @@ public class SubscriptionController {
 
     /**
      * Creates new subscription to service with serviceId for requested user
-     * @param serviceId
-     * @param email
+     * @param identifier
      * @return HttpEntity<Subscription>
-     * @throws ObjectNotFoundException
      */
-    @RequestMapping(value="/buy/{serviceId}", method= RequestMethod.POST)
-    public HttpEntity<Subscription> buyService(@PathVariable("serviceId") Integer serviceId, @RequestBody String email)
-            throws ObjectNotFoundException {
-
+    @RequestMapping(method= RequestMethod.POST)
+    public HttpEntity<Subscription> buyService(@RequestBody PurchaseIdentifier identifier){
+        Integer serviceId = identifier.getResourceId();
+        String email = identifier.getClientEmail();
         Service service = serviceService.find(serviceId);
+        if ( service == null ){
+            throw new ObjectNotFoundException( serviceId, Service.class.getName() );
+        }
         Subscription subscription = subscriptionService.findByServiceAndClient( serviceId, email );
 
         if ( subscription == null ){
@@ -59,16 +61,14 @@ public class SubscriptionController {
 
     /**
      * Checks if requested client has subscription to service with serviceId
-     * @param serviceId
-     * @param email
+     * @param identifier
      * @return HttpEntity<Boolean>
-     * @throws ObjectNotFoundException
      */
-    @RequestMapping(value="/client/{serviceId}", method= RequestMethod.POST)
-    public HttpEntity<Boolean> isClientHasPurchase(@PathVariable("serviceId") Integer serviceId, @RequestBody String email)
-            throws ObjectNotFoundException {
-        Service service = serviceService.find(serviceId);
-        Boolean clientHasActiveSubscription = subscriptionService.existsActiveByServiceAndClient( service.getId(), email );
+    @RequestMapping(value="/info", method= RequestMethod.POST)
+    public HttpEntity<Boolean> isClientHasPurchase(@RequestBody PurchaseIdentifier identifier) {
+        Integer serviceId = identifier.getResourceId();
+        String email = identifier.getClientEmail();
+        Boolean clientHasActiveSubscription = subscriptionService.existsActiveByServiceAndClient( serviceId, email );
 
         return new ResponseEntity( clientHasActiveSubscription, HttpStatus.OK );
     }
