@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping(value="/purchases")
@@ -34,8 +37,9 @@ public class PurchaseController {
      * @return HttpEntity<Purchase>
      * @throws ObjectNotFoundException
      */
+    @Async
     @RequestMapping(method= RequestMethod.POST)
-    public HttpEntity<Purchase> buyItem(@RequestBody PurchaseIdentifier identifier)
+    public CompletableFuture<HttpEntity<Purchase>> buyItem(@RequestBody PurchaseIdentifier identifier)
             throws ObjectNotFoundException {
         
         Integer itemId = identifier.getResourceId();
@@ -48,10 +52,11 @@ public class PurchaseController {
         Purchase purchase = purchaseRepository.findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
 
         if ( purchase == null ){
-            purchase = make( item, email );
+
+           return createPurchase(item, email).thenApply( result -> new ResponseEntity( result, HttpStatus.OK ));
         }
 
-        return new ResponseEntity( purchase, HttpStatus.OK );
+        return CompletableFuture.completedFuture(new ResponseEntity( purchase, HttpStatus.OK ));
     }
 
     /**
@@ -75,19 +80,24 @@ public class PurchaseController {
     }
 
     /**
-     * Method creates purchase and communicates with BillingService to make payment
+     * Method creates purchase and communicates with BillingService to createPurchase payment
      * @param item
      * @param client
      * @return Purchase
      */
-    private Purchase make(Item item, String client){
-        Purchase purchase = new Purchase( item, client );
-        purchase = purchaseRepository.save( purchase );
-        if ( billingService.pay( purchase ) ){
-            purchase.setState( Purchase.ItemState.ACTIVE );
-        } else {
-            purchase.setState( Purchase.ItemState.NOFUNDS );
-        }
-        return purchaseRepository.save( purchase );
+    @Async
+    private CompletableFuture<Purchase> createPurchase(Item item, String client){
+        Purchase purchase = purchaseRepository.save( new Purchase( item, client ) );
+
+        return billingService.pay( purchase ).thenApply(
+                (success) -> {
+                    if (success) {
+                        purchase.setState( Purchase.ItemState.ACTIVE );
+                    } else {
+                        purchase.setState( Purchase.ItemState.NOFUNDS );
+                    }
+                    return purchaseRepository.save( purchase );
+                }
+        );
     }
 }

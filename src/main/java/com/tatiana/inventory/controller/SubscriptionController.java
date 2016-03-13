@@ -10,10 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping(value="/subscriptions")
@@ -35,8 +37,9 @@ public class SubscriptionController {
      * @param identifier
      * @return HttpEntity<Subscription>
      */
+    @Async
     @RequestMapping(method= RequestMethod.POST)
-    public HttpEntity<Subscription> buyService(@RequestBody PurchaseIdentifier identifier){
+    public CompletableFuture<HttpEntity<Subscription>> buyService(@RequestBody PurchaseIdentifier identifier){
         Integer serviceId = identifier.getResourceId();
         String email = identifier.getClientEmail();
         Service service = serviceRepository.findOne(serviceId);
@@ -46,14 +49,18 @@ public class SubscriptionController {
         }
         Subscription subscription = createSubscription( service, email );
 
-        if ( billingService.pay( subscription ) ){
-            subscription.setState( Subscription.ServiceState.ACTIVE );
-        } else {
-            subscription.setState( Subscription.ServiceState.NOFUNDS );
-        }
-        subscriptionRepository.save( subscription );
+        return billingService.pay( subscription ).thenApply(
+                (success) -> {
+                    if (success) {
+                        subscription.setState(Subscription.ServiceState.ACTIVE);
+                    } else {
+                        subscription.setState(Subscription.ServiceState.NOFUNDS);
+                    }
+                    subscriptionRepository.save( subscription );
 
-        return new ResponseEntity( subscription, HttpStatus.OK );
+                    return new ResponseEntity( subscription, HttpStatus.OK );
+                }
+        );
     }
 
     /**
