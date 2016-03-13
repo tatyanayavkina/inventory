@@ -30,8 +30,6 @@ public class SubscriptionController {
         this.billingService = billingService;
     }
 
-    //todo: не дописана логика с получением подиски, есть вопросы.
-
     /**
      * Creates new subscription to service with serviceId for requested user
      * @param identifier
