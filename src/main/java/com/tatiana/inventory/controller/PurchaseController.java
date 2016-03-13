@@ -52,8 +52,19 @@ public class PurchaseController {
         Purchase purchase = purchaseRepository.findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
 
         if ( purchase == null ){
+            Purchase newPurchase = purchaseRepository.save( new Purchase( item, email ) );
 
-           return createPurchase(item, email).thenApply( result -> new ResponseEntity( result, HttpStatus.OK ));
+            return billingService.pay( newPurchase ).thenApply(
+                    (success) -> {
+                        if (success) {
+                            newPurchase.setState( Purchase.ItemState.ACTIVE );
+                        } else {
+                            newPurchase.setState( Purchase.ItemState.NOFUNDS );
+                        }
+                        purchaseRepository.save( newPurchase );
+                        return new ResponseEntity( newPurchase, HttpStatus.OK );
+                    }
+            );
         }
 
         return CompletableFuture.completedFuture(new ResponseEntity( purchase, HttpStatus.OK ));
@@ -79,25 +90,4 @@ public class PurchaseController {
         return new ResponseEntity( clientHasActivePurchase, HttpStatus.OK );
     }
 
-    /**
-     * Method creates purchase and communicates with BillingService to createPurchase payment
-     * @param item
-     * @param client
-     * @return Purchase
-     */
-    @Async
-    private CompletableFuture<Purchase> createPurchase(Item item, String client){
-        Purchase purchase = purchaseRepository.save( new Purchase( item, client ) );
-
-        return billingService.pay( purchase ).thenApply(
-                (success) -> {
-                    if (success) {
-                        purchase.setState( Purchase.ItemState.ACTIVE );
-                    } else {
-                        purchase.setState( Purchase.ItemState.NOFUNDS );
-                    }
-                    return purchaseRepository.save( purchase );
-                }
-        );
-    }
 }

@@ -57,7 +57,6 @@ public class SubscriptionController {
                         subscription.setState(Subscription.ServiceState.NOFUNDS);
                     }
                     subscriptionRepository.save( subscription );
-
                     return new ResponseEntity( subscription, HttpStatus.OK );
                 }
         );
