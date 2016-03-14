@@ -5,6 +5,7 @@ import com.tatiana.inventory.entity.*;
 import com.tatiana.inventory.entry.PurchaseIdentifier;
 import com.tatiana.inventory.repository.ServiceRepository;
 import com.tatiana.inventory.repository.SubscriptionRepository;
+import com.tatiana.inventory.service.SubscriptionService;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -22,13 +23,15 @@ import java.util.concurrent.CompletableFuture;
 public class SubscriptionController {
     private final ServiceRepository serviceRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final SubscriptionService subscriptionService;
     private final BillingService billingService;
 
     @Autowired
     public SubscriptionController(ServiceRepository serviceRepository, SubscriptionRepository subscriptionRepository,
-                                  BillingService billingService){
+                                  SubscriptionService subscriptionService, BillingService billingService){
         this.serviceRepository = serviceRepository;
         this.subscriptionRepository = subscriptionRepository;
+        this.subscriptionService = subscriptionService;
         this.billingService = billingService;
     }
 
@@ -48,7 +51,7 @@ public class SubscriptionController {
         if ( service == null ){
             throw new ObjectNotFoundException( serviceId, Service.class.getName() );
         }
-        Subscription subscription = createSubscription( service, email );
+        Subscription subscription = subscriptionService.createSubscription( service, email );
 
         return billingService.pay( subscription ).thenApply(
                 (success) -> {
@@ -83,35 +86,4 @@ public class SubscriptionController {
         return new ResponseEntity( clientHasActiveSubscription, HttpStatus.OK );
     }
 
-    /**
-     * Creates new subscription for client and finds startDate according to conditions
-     * @param service
-     * @param email
-     * @return Subscription
-     */
-    private Subscription createSubscription(Service service, String email){
-        Subscription subscription = new Subscription( service, email );
-
-        List<Subscription> activeSubscriptions = subscriptionRepository.findByServiceAndClientAndState( service.getId(), email, Subscription.ServiceState.ACTIVE);
-        // there are no active subscriptions for client
-        if ( activeSubscriptions.size() == 0 ){
-            // set startDate for new subscription, we will change date if some conditions are true
-            subscription.setStartDate( new Date() );
-            // if service should be continuous
-            if ( service.getIsContinuous() ){
-                //check expired subscriptions for client
-                List<Subscription> expiredSubscriptions = subscriptionRepository.findByServiceAndClientAndState( service.getId(), email, Subscription.ServiceState.EXPIRED);
-                if ( expiredSubscriptions.size() > 0 ){
-                    // set startDate as endDate of last expiredSubscription
-                    subscription.setStartDate( expiredSubscriptions.get(0).getEndDate() );
-                }
-            }
-        } else {
-            // set startDate as endDate of last activeSubscription
-            subscription.setStartDate( activeSubscriptions.get(0).getEndDate() );
-        }
-        subscription.calculateEndDate();
-
-        return subscriptionRepository.save(subscription);
-    }
 }

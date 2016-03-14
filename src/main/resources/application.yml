@@ -10,3 +10,7 @@ dataSource :
 hibernate :
   dialect      : org.hibernate.dialect.PostgreSQLDialect
   hbm2ddl.auto : none
+
+scheduling :
+  setExpired : "* 0/5 * * * ?"
+  renewal    : "0 0 23 * * ?"
