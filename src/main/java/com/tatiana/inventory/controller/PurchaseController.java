@@ -76,13 +76,13 @@ public class PurchaseController {
      */
     @RequestMapping(value="/info", method= RequestMethod.POST)
     public HttpEntity<Boolean> isClientHasPurchase(@RequestBody PurchaseIdentifier identifier){
-        Boolean clientHasActivePurchase = false;
+        Boolean clientHasActivePurchase = true;
         Integer itemId = identifier.getResourceId();
         String email = identifier.getClientEmail();
         Purchase purchase = purchaseRepository.findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
 
-        if( purchase != null ){
-            clientHasActivePurchase = true;
+        if( purchase == null ){
+            clientHasActivePurchase = false;
         }
 
         return new ResponseEntity( clientHasActivePurchase, HttpStatus.OK );

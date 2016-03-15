@@ -72,7 +72,7 @@ public class SubscriptionController {
      * @return HttpEntity<Boolean>
      */
     @RequestMapping(value="/info", method= RequestMethod.POST)
-    public HttpEntity<Boolean> isClientHasPurchase(@RequestBody PurchaseIdentifier identifier) {
+    public HttpEntity<Boolean> isClientHasSubscription(@RequestBody PurchaseIdentifier identifier) {
         Boolean clientHasActiveSubscription = false;
         Integer serviceId = identifier.getResourceId();
         String email = identifier.getClientEmail();

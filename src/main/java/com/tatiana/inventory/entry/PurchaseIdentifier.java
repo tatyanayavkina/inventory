@@ -5,6 +5,8 @@ public class PurchaseIdentifier {
     private Integer resourceId;
     private String clientEmail;
 
+    public PurchaseIdentifier(){}
+
     public PurchaseIdentifier(Integer resourceId, String clientEmail){
         this.resourceId = resourceId;
         this.clientEmail = clientEmail;
