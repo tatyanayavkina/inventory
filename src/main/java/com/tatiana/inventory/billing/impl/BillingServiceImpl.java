@@ -15,21 +15,25 @@ public class BillingServiceImpl implements BillingService{
 
     @Async
     public CompletableFuture<Boolean> pay(Purchase purchase){
-        try{
-            Thread.sleep(1000L);
-        } catch (InterruptedException ex){
-            logger.error("InterruptedException in BillingService");
-        }
-        return CompletableFuture.completedFuture(true);
+        return CompletableFuture.supplyAsync( () -> {
+            heavyWork();
+            return true;
+        });
     }
 
     @Async
     public CompletableFuture<Boolean> pay(Subscription subscription){
+        return CompletableFuture.supplyAsync(() -> {
+            heavyWork();
+            return true;
+        });
+    }
+
+    private void heavyWork(){
         try{
-            Thread.sleep(1000L);
+            Thread.sleep(3000L);
         } catch (InterruptedException ex){
             logger.error("InterruptedException in BillingService");
         }
-        return CompletableFuture.completedFuture(true);
     }
 }
