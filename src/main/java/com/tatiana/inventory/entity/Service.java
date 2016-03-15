@@ -61,6 +61,9 @@ public class Service extends BasicEntity  implements Serializable {
         }
     }
 
+    public Service(){
+
+    }
 
     public Integer getId(){
         return id;

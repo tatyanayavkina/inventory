@@ -9,7 +9,7 @@ import java.util.Date;
 public class Subscription extends BasicEntity  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "subscriptions_seq_gen")
-    @SequenceGenerator(name = "subscriptions_seq_gen", sequenceName = "subscription_id_seq")
+    @SequenceGenerator(name = "subscriptions_seq_gen", sequenceName = "subscription_id_seq",allocationSize=1)
     @Column(name="id", nullable=false, unique=true, length=11)
     private Integer id;
 
@@ -48,6 +48,7 @@ public class Subscription extends BasicEntity  implements Serializable {
         }
     }
 
+    public Subscription(){}
 
     public Subscription(Service service, String client){
         this.service = service;

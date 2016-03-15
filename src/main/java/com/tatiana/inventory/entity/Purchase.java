@@ -40,6 +40,9 @@ public class Purchase extends BasicEntity  implements Serializable {
         }
     }
 
+    public Purchase(){
+
+    }
 
     public Purchase(Item item, String client){
         this.item = item;

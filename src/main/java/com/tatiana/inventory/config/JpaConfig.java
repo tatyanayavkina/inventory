@@ -10,9 +10,11 @@ import com.tatiana.inventory.auditing.DateTimeService;
 import com.tatiana.inventory.auditing.UsernameAuditorAware;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -47,8 +49,7 @@ public class JpaConfig implements TransactionManagementConfigurer {
     @Value("${hibernate.hbm2ddl.auto}")
     private String hbm2ddlAuto;
 
-
-    @Bean
+    @Bean(name="dataSource")
     public DataSource configureDataSource() {
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(driver);
@@ -58,6 +59,18 @@ public class JpaConfig implements TransactionManagementConfigurer {
 
         return new HikariDataSource(config);
     }
+
+//    @Profile("test")
+//    @Bean
+//    public DataSource configureDataSource(){
+//        final BasicDataSource dataSource = new BasicDataSource();
+//        dataSource.setDriverClassName(driver);
+//        dataSource.setUrl(url);
+//        dataSource.setUsername(username);
+//        dataSource.setPassword(password);
+//
+//        return dataSource;
+//    }
 
     @Bean(name ="entityManagerFactory")
     public LocalContainerEntityManagerFactoryBean configureEntityManagerFactory() {

@@ -51,6 +51,7 @@ public class SubscriptionController {
             throw new ObjectNotFoundException( serviceId, Service.class.getName() );
         }
         Subscription subscription = subscriptionService.createSubscription( service, email );
+        subscriptionRepository.save( subscription );
 
         return billingService.pay( subscription ).thenApply(
                 (success) -> {

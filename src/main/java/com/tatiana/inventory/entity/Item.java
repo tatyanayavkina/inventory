@@ -30,6 +30,10 @@ public class Item extends BasicEntity  implements Serializable {
     @Type(type = "org.jadira.usertype.moneyandcurrency.moneta.PersistentMoneyAmountAndCurrency")
     private MonetaryAmount price;
 
+    public Item(){
+
+    }
+
     public Integer getId(){
         return id;
     }

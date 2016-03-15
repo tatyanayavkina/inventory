@@ -45,6 +45,7 @@ public class SubscriptionTask {
         subscriptions.parallelStream()
                 .forEach( (s) -> {
                     Subscription renewal = subscriptionService.createSubscription(s.getService(), s.getClient());
+                    subscriptionRepository.save( renewal );
                     billingService.pay(renewal).thenAccept((success) ->{
                            if ( success ){
                                renewal.setState( Subscription.ServiceState.ACTIVE );

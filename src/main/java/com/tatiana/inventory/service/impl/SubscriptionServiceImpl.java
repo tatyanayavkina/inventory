@@ -3,6 +3,7 @@ package com.tatiana.inventory.service.impl;
 import com.tatiana.inventory.entity.Subscription;
 import com.tatiana.inventory.repository.SubscriptionRepository;
 import com.tatiana.inventory.service.SubscriptionService;
+import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,8 @@ import java.util.List;
 public class SubscriptionServiceImpl implements SubscriptionService{
     private final SubscriptionRepository subscriptionRepository;
 
+    private final Logger logger = Logger.getLogger(SubscriptionServiceImpl.class);
+
     @Autowired
     public SubscriptionServiceImpl(SubscriptionRepository subscriptionRepository){
         this.subscriptionRepository = subscriptionRepository;
@@ -21,7 +24,6 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     @Override
     public Subscription createSubscription(com.tatiana.inventory.entity.Service service, String clientEmail){
         Subscription subscription = new Subscription( service, clientEmail );
-
         Subscription lastActiveSubscription = getLastSubscriptionByServiceAndClientAndState(service.getId(), clientEmail, Subscription.ServiceState.ACTIVE);
         // there is no active subscription for client
         if ( lastActiveSubscription == null ){
@@ -42,7 +44,8 @@ public class SubscriptionServiceImpl implements SubscriptionService{
         }
         subscription.calculateEndDate();
 
-        return subscriptionRepository.save(subscription);
+//        return subscriptionRepository.save(subscription);
+        return subscription;
     }
 
     private Subscription getLastSubscriptionByServiceAndClientAndState(Integer serviceId, String clientEmail, Subscription.ServiceState state){
