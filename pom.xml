@@ -139,7 +139,14 @@
             <version>2.3.3</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.nitorcreations</groupId>
+            <artifactId>junit-runners</artifactId>
+            <version>1.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>

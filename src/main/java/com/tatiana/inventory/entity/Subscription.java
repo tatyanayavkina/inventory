@@ -112,7 +112,27 @@ public class Subscription extends BasicEntity  implements Serializable {
         this.state = state;
     }
 
-    public void calculateEndDate(){
+    private void calculateEndDate(){
         endDate = Service.Length.getNextDate( startDate, service.getLength() );
+    }
+
+    public void calculateStartAndEndDate(Subscription lastActiveSubscription, Subscription lastExpiredSubscription){
+        // there is no active subscription for client
+        if ( lastActiveSubscription == null ){
+            // set startDate for new subscription, we will change date if some conditions are true
+            setStartDate( new Date() );
+            // if service should be continuous
+            if ( service.getIsContinuous() ){
+                //check expired subscription for client
+                if ( lastExpiredSubscription != null ){
+                    // set startDate as endDate of lastExpiredSubscription
+                    setStartDate( lastExpiredSubscription.getEndDate() );
+                }
+            }
+        } else {
+            // set startDate as endDate of lastActiveSubscription
+            setStartDate( lastActiveSubscription.getEndDate() );
+        }
+        calculateEndDate();
     }
 }

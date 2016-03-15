@@ -25,25 +25,8 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     public Subscription createSubscription(com.tatiana.inventory.entity.Service service, String clientEmail){
         Subscription subscription = new Subscription( service, clientEmail );
         Subscription lastActiveSubscription = getLastSubscriptionByServiceAndClientAndState(service.getId(), clientEmail, Subscription.ServiceState.ACTIVE);
-        // there is no active subscription for client
-        if ( lastActiveSubscription == null ){
-            // set startDate for new subscription, we will change date if some conditions are true
-            subscription.setStartDate( new Date() );
-            // if service should be continuous
-            if ( service.getIsContinuous() ){
-                //check expired subscriptions for client
-                Subscription lastExpiredSubscription = getLastSubscriptionByServiceAndClientAndState(service.getId(), clientEmail, Subscription.ServiceState.EXPIRED);
-                if ( lastExpiredSubscription != null ){
-                    // set startDate as endDate of lastExpiredSubscription
-                    subscription.setStartDate( lastExpiredSubscription.getEndDate() );
-                }
-            }
-        } else {
-            // set startDate as endDate of lastActiveSubscription
-            subscription.setStartDate( lastActiveSubscription.getEndDate() );
-        }
-        subscription.calculateEndDate();
-
+        Subscription lastExpiredSubscription = getLastSubscriptionByServiceAndClientAndState(service.getId(), clientEmail, Subscription.ServiceState.EXPIRED);
+        subscription.calculateStartAndEndDate(lastActiveSubscription, lastExpiredSubscription);
 //        return subscriptionRepository.save(subscription);
         return subscription;
     }
