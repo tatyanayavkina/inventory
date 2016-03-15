@@ -17,7 +17,7 @@ public class Item extends BasicEntity  implements Serializable {
     @Column(name="id", nullable=false, unique=true, length=11)
     private Integer id;
 
-    @Column(name="name", nullable=false)
+    @Column(name="item_name", nullable=false)
     private String name;
 
     @Column(name="description")

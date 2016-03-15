@@ -7,6 +7,7 @@ import com.tatiana.inventory.entry.PurchaseIdentifier;
 import com.tatiana.inventory.repository.ItemRepository;
 import com.tatiana.inventory.repository.PurchaseRepository;
 import org.hibernate.ObjectNotFoundException;
+import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -22,6 +24,8 @@ public class PurchaseController {
     private final ItemRepository itemRepository;
     private final PurchaseRepository purchaseRepository;
     private final BillingService billingService;
+
+    private final Logger logger = Logger.getLogger(PurchaseController.class);
 
     @Autowired
     public PurchaseController(ItemRepository itemRepository, PurchaseRepository purchaseRepository,
@@ -40,15 +44,13 @@ public class PurchaseController {
     @Async
     @RequestMapping(method= RequestMethod.POST)
     public CompletableFuture<HttpEntity<Purchase>> buyItem(@RequestBody PurchaseIdentifier identifier) throws ObjectNotFoundException {
-        
         Integer itemId = identifier.getResourceId();
         String email = identifier.getClientEmail();
         Item item = itemRepository.findOne(itemId);
-
         if ( item == null ){
             throw new ObjectNotFoundException( itemId, Item.class.getName() );
         }
-        Purchase purchase = purchaseRepository.findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
+        Purchase purchase = findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
 
         if ( purchase == null ){
             Purchase newPurchase = purchaseRepository.save( new Purchase( item, email ) );
@@ -79,13 +81,22 @@ public class PurchaseController {
         Boolean clientHasActivePurchase = true;
         Integer itemId = identifier.getResourceId();
         String email = identifier.getClientEmail();
-        Purchase purchase = purchaseRepository.findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
+        Purchase purchase = findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
 
         if( purchase == null ){
             clientHasActivePurchase = false;
         }
 
         return new ResponseEntity( clientHasActivePurchase, HttpStatus.OK );
+    }
+
+    private Purchase findByItemAndClientAndState(Integer itemId, String clientEmail, Purchase.ItemState state){
+        Purchase purchase = null;
+        List<Purchase> purchases = purchaseRepository.findByItemAndClientAndState(itemId, clientEmail, state);
+        if( purchases.size() > 0 ){
+            purchase = purchases.get(0);
+        }
+        return purchase;
     }
 
 }

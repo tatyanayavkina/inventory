@@ -9,17 +9,21 @@ import com.tatiana.inventory.entity.Purchase;
 import com.tatiana.inventory.entry.PurchaseIdentifier;
 import com.tatiana.inventory.repository.ItemRepository;
 import com.tatiana.inventory.repository.PurchaseRepository;
+import org.hibernate.ObjectNotFoundException;
 import org.jboss.logging.Logger;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -35,10 +39,9 @@ public class PurchaseControllerTest {
     private ItemRepository itemRepositoryMock;
     private BillingService billingServiceMock;
 
-//    @Autowired
-//    private WebApplicationContext webApplicationContext;
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
-//    private final Logger logger = Logger.getLogger(PurchaseControllerTest.class);
 
     @Before
     public void setUp() {
@@ -75,12 +78,15 @@ public class PurchaseControllerTest {
 
         Item item = new Item();
         item.setId(itemId);
-        Purchase found = new Purchase();
-        found.setClient(clientEmail);
-        found.setItem(item);
-        found.setState(Purchase.ItemState.ACTIVE);
+        Purchase purchase = new Purchase();
+        purchase.setClient(clientEmail);
+        purchase.setItem(item);
+        purchase.setState(Purchase.ItemState.ACTIVE);
 
-        when(purchaseRepositoryMock.findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE)).thenReturn(found);
+        List<Purchase> purchases = new ArrayList<>();
+        purchases.add(purchase);
+
+        when(purchaseRepositoryMock.findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE)).thenReturn(purchases);
 
         mockMvc.perform(post("/purchases/info")
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -92,5 +98,17 @@ public class PurchaseControllerTest {
 
         verify(purchaseRepositoryMock, times(1)).findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE);
         verifyNoMoreInteractions(purchaseRepositoryMock);
+    }
+
+    @Test
+    //todo: fails
+    public void testBuyItem_ShouldReturnStatusNotFound() throws Exception{
+        PurchaseIdentifier identifier = new PurchaseIdentifier(5, "user1@gmail.com");
+        exception.expect(ObjectNotFoundException.class);
+
+        mockMvc.perform(post("/purchases")
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(identifier))
+        );
     }
 }

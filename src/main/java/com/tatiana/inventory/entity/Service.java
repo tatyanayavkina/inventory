@@ -20,7 +20,7 @@ public class Service extends BasicEntity  implements Serializable {
     @Column(name="id", nullable=false, unique=true, length=11)
     private Integer id;
 
-    @Column(name="name", nullable=false)
+    @Column(name="service_name", nullable=false)
     private String name;
 
     @Column(name="description")
