@@ -116,21 +116,25 @@ public class Subscription extends BasicEntity  implements Serializable {
         endDate = Service.Length.getNextDate( startDate, service.getLength() );
     }
 
+    /**
+     * Finds startDate for subscription according to conditions and then calculate endDate
+     * @param lastActiveSubscription
+     * @param lastExpiredSubscription
+     *
+     * If client has an active subscription then then we get its endDate and use it as startDate for new subscription
+     * If there are no active subscription for client then we set startDate as current date,
+     * but we change it if service is continuous and client has an expired subscription.
+     */
     public void calculateStartAndEndDate(Subscription lastActiveSubscription, Subscription lastExpiredSubscription){
-        // there is no active subscription for client
         if (lastActiveSubscription == null){
-            // set startDate for new subscription, we will change date if some conditions are true
             setStartDate( new Date() );
-            // if service should be continuous
+
             if (service.getIsContinuous()){
-                //check expired subscription for client
                 if ( lastExpiredSubscription != null ){
-                    // set startDate as endDate of lastExpiredSubscription
                     setStartDate(lastExpiredSubscription.getEndDate());
                 }
             }
         } else {
-            // set startDate as endDate of lastActiveSubscription
             setStartDate(lastActiveSubscription.getEndDate());
         }
         calculateEndDate();

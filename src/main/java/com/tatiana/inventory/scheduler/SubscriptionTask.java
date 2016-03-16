@@ -61,7 +61,6 @@ public class SubscriptionTask {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(current);
         calendar.add(Calendar.DATE, 1);
-        // reset hour, minutes, seconds and millis
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
