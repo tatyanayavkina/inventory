@@ -111,7 +111,7 @@ public class JpaConfig implements TransactionManagementConfigurer {
     @Bean
     public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
         MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
-        ObjectMapper objectMapper = new ObjectMapper().registerModule(new MoneyModule());;
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new MoneyModule());
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         jsonConverter.setObjectMapper(objectMapper);
         return jsonConverter;

@@ -30,10 +30,10 @@ public class SubscriptionTask {
     public void setSubscriptionExpired(){
         Date date = new Date();
         List<Subscription> subscriptions = subscriptionRepository.findByStateAndEndDateLessThan(Subscription.ServiceState.ACTIVE, date);
-        subscriptions.parallelStream()
+        subscriptions.stream()
                 .forEach((s) -> {
-                    s.setState( Subscription.ServiceState.EXPIRED );
-                    subscriptionRepository.save( s );
+                    s.setState(Subscription.ServiceState.EXPIRED);
+                    subscriptionRepository.save(s);
                 });
     }
 
@@ -42,17 +42,17 @@ public class SubscriptionTask {
         Date first = getNextDayMidnight(new Date());
         Date second = addDay(first);
         List<Subscription> subscriptions = subscriptionRepository.findByStateAndIsAutoAndEndDateBetween(Subscription.ServiceState.ACTIVE, first, second);
-        subscriptions.parallelStream()
+        subscriptions.stream()
                 .forEach( (s) -> {
                     Subscription renewal = subscriptionService.createSubscription(s.getService(), s.getClient());
                     subscriptionRepository.save( renewal );
                     billingService.pay(renewal).thenAccept((success) ->{
-                           if ( success ){
-                               renewal.setState( Subscription.ServiceState.ACTIVE );
+                           if (success){
+                               renewal.setState(Subscription.ServiceState.ACTIVE);
                            } else {
-                               renewal.setState( Subscription.ServiceState.NOFUNDS );
+                               renewal.setState(Subscription.ServiceState.NOFUNDS);
                            }
-                           subscriptionRepository.save( renewal );
+                           subscriptionRepository.save(renewal);
                         });
                 });
 
@@ -61,7 +61,7 @@ public class SubscriptionTask {
 
     private Date getNextDayMidnight (Date current){
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime( current );
+        calendar.setTime(current);
         calendar.add(Calendar.DATE, 1);
         // reset hour, minutes, seconds and millis
         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -74,7 +74,7 @@ public class SubscriptionTask {
 
     private Date addDay(Date date){
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime( date );
+        calendar.setTime(date);
         calendar.add(Calendar.DATE, 1);
 
         return  calendar.getTime();

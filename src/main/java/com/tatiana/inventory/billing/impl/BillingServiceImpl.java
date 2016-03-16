@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 public class BillingServiceImpl implements BillingService{
-    private static final Logger logger = Logger.getLogger( BillingServiceImpl.class );
+    private static final Logger logger = Logger.getLogger(BillingServiceImpl.class);
 
     @Async
     public CompletableFuture<Boolean> pay(Purchase purchase){

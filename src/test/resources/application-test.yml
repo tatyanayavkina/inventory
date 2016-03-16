@@ -1,13 +1,13 @@
-dataSource :
+dataSource:
   driverClassName: org.hsqldb.jdbcDriver
-  url            : jdbc:hsqldb:mem
-  username       : sa
-  password       :
+  url: jdbc:hsqldb:mem
+  username: sa
+  password:
 
-hibernate :
-  dialect             : org.hibernate.dialect.HSQLDialect
-#  format_sql          : true
-  hbm2ddl.auto        : create-drop
-#  ejb.naming_strategy : org.hibernate.cfg.ImprovedNamingStrategy
-  show_sql            : true
+hibernate:
+  dialect: org.hibernate.dialect.HSQLDialect
+#  format_sql: true
+  hbm2ddl.auto: create-drop
+#  ejb.naming_strategy: org.hibernate.cfg.ImprovedNamingStrategy
+  show_sql: true
 

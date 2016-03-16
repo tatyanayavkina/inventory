@@ -32,9 +32,9 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     }
 
     private Subscription getLastSubscriptionByServiceAndClientAndState(Integer serviceId, String clientEmail, Subscription.ServiceState state){
-        List<Subscription> subscriptions = subscriptionRepository.findByServiceAndClientAndState( serviceId, clientEmail, state);
+        List<Subscription> subscriptions = subscriptionRepository.findByServiceAndClientAndState(serviceId, clientEmail, state);
         Subscription lastSubscription = null;
-        if ( subscriptions.size() > 0 ){
+        if (subscriptions.size() > 0){
             lastSubscription = subscriptions.get(0);
         }
 

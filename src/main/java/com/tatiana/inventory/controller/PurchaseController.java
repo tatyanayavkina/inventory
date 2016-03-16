@@ -48,14 +48,14 @@ public class PurchaseController {
         String email = identifier.getClientEmail();
         Item item = itemRepository.findOne(itemId);
         if ( item == null ){
-            throw new ObjectNotFoundException( itemId, Item.class.getName() );
+            throw new ObjectNotFoundException(itemId, Item.class.getName());
         }
         Purchase purchase = findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
 
         if ( purchase == null ){
-            Purchase newPurchase = purchaseRepository.save( new Purchase( item, email ) );
+            Purchase newPurchase = purchaseRepository.save(new Purchase(item, email));
 
-            return billingService.pay( newPurchase ).thenApply(
+            return billingService.pay(newPurchase).thenApply(
                     (success) -> {
                         if (success) {
                             newPurchase.setState( Purchase.ItemState.ACTIVE );
@@ -63,12 +63,12 @@ public class PurchaseController {
                             newPurchase.setState( Purchase.ItemState.NOFUNDS );
                         }
                         purchaseRepository.save( newPurchase );
-                        return new ResponseEntity( newPurchase, HttpStatus.OK );
+                        return new ResponseEntity(newPurchase, HttpStatus.OK);
                     }
             );
         }
 
-        return CompletableFuture.completedFuture(new ResponseEntity( purchase, HttpStatus.OK ));
+        return CompletableFuture.completedFuture(new ResponseEntity(purchase, HttpStatus.OK));
     }
 
     /**
