@@ -30,9 +30,6 @@ public class Subscription extends BasicEntity  implements Serializable {
     @Enumerated(EnumType.STRING)
     private ServiceState state;
 
-    @Column(name="is_auto")
-    private Boolean isAuto;
-
     public enum ServiceState{
         CREATED("created"), ACTIVE("active"), EXPIRED("expired"),
         CANCELLED("cancelled"), RETURNED("returned"), NOFUNDS("nofunds");
@@ -94,14 +91,6 @@ public class Subscription extends BasicEntity  implements Serializable {
 
     public void setEndDate(Date endDate){
         this.endDate = endDate;
-    }
-
-    public Boolean getIsAuto(){
-        return isAuto;
-    }
-
-    public void setIsAuto(Boolean isAuto){
-        this.isAuto = isAuto;
     }
 
     public ServiceState getState(){

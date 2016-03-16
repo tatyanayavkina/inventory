@@ -23,7 +23,8 @@ public interface SubscriptionRepository extends JpaRepository<Subscription,Integ
     @Query("select s from Subscription s where s.state=:state and s.endDate<:date")
     List<Subscription> findByStateAndEndDateLessThan(@Param("state") Subscription.ServiceState state, @Param("date")Date date);
 
-    @Query("select  s from Subscription s where s.state=:state and s.isAuto=true and s.endDate>=:first and s.endDate<:second")
+    @Query("select s from Subscription s join Service service on s.service.id=service.id where s.state=:state " +
+            "and service.isAuto=true and s.endDate>=:first and s.endDate<:second")
     List<Subscription> findByStateAndIsAutoAndEndDateBetween(@Param("state") Subscription.ServiceState state,
                                                              @Param("first") Date first, @Param("second") Date second);
 }

@@ -40,6 +40,9 @@ public class Service extends BasicEntity  implements Serializable {
     @Column(name="is_continuous")
     private Boolean isContinuous;
 
+    @Column(name="is_auto")
+    private Boolean isAuto;
+
     public enum Length {
         DAY(Calendar.DATE), MONTH(Calendar.MONTH);
 
@@ -112,6 +115,15 @@ public class Service extends BasicEntity  implements Serializable {
     public void setIsContinuous(Boolean isContinuous){
         this.isContinuous = isContinuous;
     }
+
+    public Boolean getIsAuto(){
+        return isAuto;
+    }
+
+    public void setIsAuto(Boolean isAuto){
+        this.isAuto = isAuto;
+    }
+
 
 }
 
