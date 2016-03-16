@@ -10,7 +10,9 @@ import com.tatiana.inventory.service.SubscriptionService;
 import com.tatiana.inventory.test.utils.TestUtil;
 import com.tatiana.inventory.test.config.MockApplicationConfiguration;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.util.NestedServletException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +53,9 @@ public class SubscriptionControllerTest {
     private SubscriptionService subscriptionServiceMock;
     @Autowired
     private BillingService billingServiceMock;
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Before
     public void setUp() {
@@ -110,14 +116,13 @@ public class SubscriptionControllerTest {
     }
 
     @Test
-    //todo: error
-    //todo: NestedServletException: Request processing failed; nested exception is java.util.concurrent.CompletionException: org.hibernate.ObjectNotFoundException:
     public void testBuyService_ShouldReturnInternalServerError() throws Exception{
         Integer serviceId = 3;
         String clientEmail = "user1@gmail.com";
         PurchaseIdentifier identifier = new PurchaseIdentifier(serviceId, clientEmail);
 
         when(serviceRepositoryMock.findOne(serviceId)).thenReturn(null);
+        exception.expect(NestedServletException.class);
 
         MvcResult result = mockMvc.perform(post("/subscriptions")
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)

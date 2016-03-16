@@ -10,7 +10,9 @@ import com.tatiana.inventory.test.utils.TestUtil;
 import com.tatiana.inventory.test.config.MockApplicationConfiguration;
 import org.jboss.logging.Logger;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.util.NestedServletException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +51,8 @@ public class PurchaseControllerTest {
     @Autowired
     private BillingService billingServiceMock;
 
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
     private final Logger logger = Logger.getLogger(PurchaseControllerTest.class);
 
     @Before
@@ -111,6 +116,7 @@ public class PurchaseControllerTest {
         PurchaseIdentifier identifier = new PurchaseIdentifier(itemId, clientEmail);
 
         when(itemRepositoryMock.findOne(itemId)).thenReturn(null);
+        exception.expect(NestedServletException.class);
 
         MvcResult result = mockMvc.perform(post("/purchases")
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
