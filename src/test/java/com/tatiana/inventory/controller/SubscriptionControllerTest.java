@@ -21,8 +21,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,22 +49,28 @@ public class SubscriptionControllerTest {
 
     @Test
     public void testIsClientHasSubscription_ShouldReturnFalse() throws Exception{
-        PurchaseIdentifier identifier = new PurchaseIdentifier(5, "user1@gmail.com");
+        Integer serviceId = 5;
+        String clientEmail = "user1@gmail.com";
+        List<Subscription> subscriptions = new ArrayList<>();
 
-        mockMvc.perform(post("/subscriptions/info")
-                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                        .content(TestUtil.convertObjectToJsonBytes(identifier))
+        when(subscriptionRepositoryMock.findByServiceAndClientAndState(serviceId, clientEmail, Subscription.ServiceState.ACTIVE)).thenReturn(subscriptions);
+
+        mockMvc.perform(get("/subscriptions/info")
+                .param("serviceId", serviceId.toString())
+                .param("email", clientEmail)
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(content().string("false"));
+
+        verify(subscriptionRepositoryMock, times(1)).findByServiceAndClientAndState(serviceId, clientEmail, Subscription.ServiceState.ACTIVE);
+        verifyNoMoreInteractions(subscriptionRepositoryMock);
     }
 
     @Test
     public void testIsClientHasSubscription_ShouldReturnTrue() throws Exception{
         Integer serviceId = 5;
         String clientEmail = "user1@gmail.com";
-        PurchaseIdentifier identifier = new PurchaseIdentifier(serviceId, clientEmail);
 
         Service service = new Service();
         service.setId(serviceId);
@@ -75,14 +82,17 @@ public class SubscriptionControllerTest {
         List<Subscription> subscriptions = new ArrayList<>();
         subscriptions.add(subscription);
 
-        when(subscriptionRepositoryMock.findByServiceAndClientAndState(serviceId,clientEmail, Subscription.ServiceState.ACTIVE)).thenReturn(subscriptions);
+        when(subscriptionRepositoryMock.findByServiceAndClientAndState(serviceId, clientEmail, Subscription.ServiceState.ACTIVE)).thenReturn(subscriptions);
 
-        mockMvc.perform(post("/subscriptions/info")
-                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                        .content(TestUtil.convertObjectToJsonBytes(identifier))
+        mockMvc.perform(get("/subscriptions/info")
+                        .param("serviceId", serviceId.toString())
+                        .param("email", clientEmail)
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(content().string("true"));
+
+        verify(subscriptionRepositoryMock, times(1)).findByServiceAndClientAndState(serviceId, clientEmail, Subscription.ServiceState.ACTIVE);
+        verifyNoMoreInteractions(subscriptionRepositoryMock);
     }
 }
