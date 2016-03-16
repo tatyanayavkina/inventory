@@ -1,6 +1,7 @@
 package com.tatiana.inventory.scheduler;
 
 import com.tatiana.inventory.billing.BillingService;
+import com.tatiana.inventory.entity.Service;
 import com.tatiana.inventory.entity.Subscription;
 import com.tatiana.inventory.repository.SubscriptionRepository;
 import com.tatiana.inventory.service.SubscriptionService;
@@ -15,14 +16,11 @@ import java.util.List;
 @Component
 public class SubscriptionTask {
     private final SubscriptionRepository subscriptionRepository;
-    private final SubscriptionService subscriptionService;
     private final BillingService billingService;
 
     @Autowired
-    public SubscriptionTask(SubscriptionRepository subscriptionRepository, SubscriptionService subscriptionService,
-                            BillingService billingService){
+    public SubscriptionTask(SubscriptionRepository subscriptionRepository, BillingService billingService){
         this.subscriptionRepository = subscriptionRepository;
-        this.subscriptionService = subscriptionService;
         this.billingService = billingService;
     }
 
@@ -44,8 +42,10 @@ public class SubscriptionTask {
         List<Subscription> subscriptions = subscriptionRepository.findByStateAndIsAutoAndEndDateBetween(Subscription.ServiceState.ACTIVE, first, second);
         subscriptions.stream()
                 .forEach( (s) -> {
-                    Subscription renewal = subscriptionService.createSubscription(s.getService(), s.getClient());
-                    subscriptionRepository.save( renewal );
+                    Subscription renewal = new Subscription(s.getService(), s.getClient());
+                    renewal.setStartDate(s.getEndDate());
+                    renewal.calculateEndDate();
+                    subscriptionRepository.save(renewal);
                     billingService.pay(renewal).thenAccept((success) ->{
                            if (success){
                                renewal.setState(Subscription.ServiceState.ACTIVE);
@@ -55,8 +55,6 @@ public class SubscriptionTask {
                            subscriptionRepository.save(renewal);
                         });
                 });
-
-
     }
 
     private Date getNextDayMidnight (Date current){

@@ -50,19 +50,19 @@ public class PurchaseController {
         if ( item == null ){
             throw new ObjectNotFoundException(itemId, Item.class.getName());
         }
-        Purchase purchase = findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
 
-        if ( purchase == null ){
+        Purchase purchase = findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
+        if (purchase == null){
             Purchase newPurchase = purchaseRepository.save(new Purchase(item, email));
 
             return billingService.pay(newPurchase).thenApply(
                     (success) -> {
                         if (success) {
-                            newPurchase.setState( Purchase.ItemState.ACTIVE );
+                            newPurchase.setState(Purchase.ItemState.ACTIVE);
                         } else {
-                            newPurchase.setState( Purchase.ItemState.NOFUNDS );
+                            newPurchase.setState(Purchase.ItemState.NOFUNDS);
                         }
-                        purchaseRepository.save( newPurchase );
+                        purchaseRepository.save(newPurchase);
                         return new ResponseEntity(newPurchase, HttpStatus.OK);
                     }
             );
@@ -73,27 +73,26 @@ public class PurchaseController {
 
     /**
      * Checks if requested client has purchase of item with itemId
-     * @param identifier
+     * @param itemId
+     * @param email
      * @return HttpEntity<Boolean>
      */
-    @RequestMapping(value="/info", method= RequestMethod.POST)
-    public HttpEntity<Boolean> isClientHasPurchase(@RequestBody PurchaseIdentifier identifier){
+    @RequestMapping(value="/info", method= RequestMethod.GET)
+    public HttpEntity<Boolean> isClientHasPurchase(@RequestParam("itemId") Integer itemId, @RequestParam("email") String email){
         Boolean clientHasActivePurchase = true;
-        Integer itemId = identifier.getResourceId();
-        String email = identifier.getClientEmail();
         Purchase purchase = findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
 
-        if( purchase == null ){
+        if(purchase == null){
             clientHasActivePurchase = false;
         }
 
-        return new ResponseEntity( clientHasActivePurchase, HttpStatus.OK );
+        return new ResponseEntity(clientHasActivePurchase, HttpStatus.OK);
     }
 
     private Purchase findByItemAndClientAndState(Integer itemId, String clientEmail, Purchase.ItemState state){
         Purchase purchase = null;
         List<Purchase> purchases = purchaseRepository.findByItemAndClientAndState(itemId, clientEmail, state);
-        if( purchases.size() > 0 ){
+        if(purchases.size() > 0){
             purchase = purchases.get(0);
         }
         return purchase;

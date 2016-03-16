@@ -112,7 +112,7 @@ public class Subscription extends BasicEntity  implements Serializable {
         this.state = state;
     }
 
-    private void calculateEndDate(){
+    public void calculateEndDate(){
         endDate = Service.Length.getNextDate( startDate, service.getLength() );
     }
 

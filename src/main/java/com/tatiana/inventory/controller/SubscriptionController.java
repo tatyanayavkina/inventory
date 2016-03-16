@@ -48,42 +48,39 @@ public class SubscriptionController {
         Service service = serviceRepository.findOne(serviceId);
 
         if ( service == null ){
-            throw new ObjectNotFoundException( serviceId, Service.class.getName() );
+            throw new ObjectNotFoundException(serviceId, Service.class.getName());
         }
-        Subscription subscription = subscriptionService.createSubscription( service, email );
-        subscriptionRepository.save( subscription );
+        Subscription subscription = subscriptionService.createSubscription(service, email);
+        subscriptionRepository.save(subscription);
 
-        return billingService.pay( subscription ).thenApply(
+        return billingService.pay(subscription).thenApply(
                 (success) -> {
                     if (success) {
                         subscription.setState(Subscription.ServiceState.ACTIVE);
                     } else {
                         subscription.setState(Subscription.ServiceState.NOFUNDS);
                     }
-                    subscriptionRepository.save( subscription );
-                    return new ResponseEntity( subscription, HttpStatus.OK );
+                    subscriptionRepository.save(subscription);
+                    return new ResponseEntity(subscription, HttpStatus.OK);
                 }
         );
     }
 
     /**
      * Checks if requested client has subscription to service with serviceId
-     * @param identifier
+     * @param serviceId
+     * @param email
      * @return HttpEntity<Boolean>
      */
-    @RequestMapping(value="/info", method= RequestMethod.POST)
-    public HttpEntity<Boolean> isClientHasSubscription(@RequestBody PurchaseIdentifier identifier) {
+    @RequestMapping(value="/info", method= RequestMethod.GET)
+    public HttpEntity<Boolean> isClientHasSubscription(@RequestParam("serviceId") Integer serviceId, @RequestParam("email") String email) {
         Boolean clientHasActiveSubscription = false;
-        Integer serviceId = identifier.getResourceId();
-        String email = identifier.getClientEmail();
-
         List<Subscription> subscriptions = subscriptionRepository.findByServiceAndClientAndState(serviceId, email, Subscription.ServiceState.ACTIVE);
-
         if( subscriptions.size() > 0 ){
             clientHasActiveSubscription = true;
         }
 
-        return new ResponseEntity( clientHasActiveSubscription, HttpStatus.OK );
+        return new ResponseEntity(clientHasActiveSubscription, HttpStatus.OK);
     }
 
 }
