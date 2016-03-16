@@ -10,14 +10,18 @@ import com.tatiana.inventory.repository.ServiceRepository;
 import com.tatiana.inventory.repository.SubscriptionRepository;
 import com.tatiana.inventory.service.SubscriptionService;
 import com.tatiana.inventory.test.TestUtil;
+import com.tatiana.inventory.test.config.MockApplicationConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,22 +34,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Application.class)
+@SpringApplicationConfiguration(classes = MockApplicationConfiguration.class)
 @WebAppConfiguration
 public class SubscriptionControllerTest {
     private MockMvc mockMvc;
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
+    @Autowired
     private ServiceRepository serviceRepositoryMock;
+    @Autowired
     private SubscriptionRepository subscriptionRepositoryMock;
+    @Autowired
     private SubscriptionService subscriptionServiceMock;
+    @Autowired
     private BillingService billingServiceMock;
 
     @Before
     public void setUp() {
-        serviceRepositoryMock = mock(ServiceRepository.class);
-        subscriptionRepositoryMock = mock(SubscriptionRepository.class);
-        subscriptionServiceMock = mock(SubscriptionService.class);
-        billingServiceMock = mock(BillingService.class);
-        mockMvc = MockMvcBuilders.standaloneSetup(new SubscriptionController(serviceRepositoryMock, subscriptionRepositoryMock, subscriptionServiceMock, billingServiceMock)).build();
+        Mockito.reset(serviceRepositoryMock);
+        Mockito.reset(subscriptionRepositoryMock);
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
     @Test
