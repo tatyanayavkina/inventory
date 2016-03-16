@@ -1,15 +1,13 @@
 package com.tatiana.inventory.test.controller;
 
-import com.tatiana.inventory.Application;
 import com.tatiana.inventory.billing.BillingService;
-import com.tatiana.inventory.controller.SubscriptionController;
 import com.tatiana.inventory.entity.Service;
 import com.tatiana.inventory.entity.Subscription;
 import com.tatiana.inventory.entry.PurchaseIdentifier;
 import com.tatiana.inventory.repository.ServiceRepository;
 import com.tatiana.inventory.repository.SubscriptionRepository;
 import com.tatiana.inventory.service.SubscriptionService;
-import com.tatiana.inventory.test.TestUtil;
+import com.tatiana.inventory.test.utils.TestUtil;
 import com.tatiana.inventory.test.config.MockApplicationConfiguration;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +18,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -28,9 +27,11 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -54,6 +55,8 @@ public class SubscriptionControllerTest {
     public void setUp() {
         Mockito.reset(serviceRepositoryMock);
         Mockito.reset(subscriptionRepositoryMock);
+        Mockito.reset(subscriptionServiceMock);
+        Mockito.reset(billingServiceMock);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
@@ -66,8 +69,8 @@ public class SubscriptionControllerTest {
         when(subscriptionRepositoryMock.findByServiceAndClientAndState(serviceId, clientEmail, Subscription.ServiceState.ACTIVE)).thenReturn(subscriptions);
 
         mockMvc.perform(get("/subscriptions/info")
-                .param("serviceId", serviceId.toString())
-                .param("email", clientEmail)
+                    .param("serviceId", serviceId.toString())
+                    .param("email", clientEmail)
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8))
@@ -104,5 +107,33 @@ public class SubscriptionControllerTest {
 
         verify(subscriptionRepositoryMock, times(1)).findByServiceAndClientAndState(serviceId, clientEmail, Subscription.ServiceState.ACTIVE);
         verifyNoMoreInteractions(subscriptionRepositoryMock);
+    }
+
+    @Test
+    //todo: error
+    //todo: NestedServletException: Request processing failed; nested exception is java.util.concurrent.CompletionException: org.hibernate.ObjectNotFoundException:
+    public void testBuyService_ShouldReturnInternalServerError() throws Exception{
+        Integer serviceId = 3;
+        String clientEmail = "user1@gmail.com";
+        PurchaseIdentifier identifier = new PurchaseIdentifier(serviceId, clientEmail);
+
+        when(serviceRepositoryMock.findOne(serviceId)).thenReturn(null);
+
+        MvcResult result = mockMvc.perform(post("/subscriptions")
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(identifier))
+        )
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(result))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8));
+
+        verify(serviceRepositoryMock, times(1)).findOne(serviceId);
+        verifyNoMoreInteractions(serviceRepositoryMock);
+        verifyZeroInteractions(subscriptionRepositoryMock);
+        verifyZeroInteractions(subscriptionServiceMock);
+        verifyZeroInteractions(billingServiceMock);
     }
 }

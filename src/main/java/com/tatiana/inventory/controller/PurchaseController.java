@@ -53,7 +53,8 @@ public class PurchaseController {
 
         Purchase purchase = findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
         if (purchase == null){
-            Purchase newPurchase = purchaseRepository.save(new Purchase(item, email));
+            purchase = new Purchase(item, email);
+            Purchase newPurchase = purchaseRepository.save(purchase);
 
             return billingService.pay(newPurchase).thenApply(
                     (success) -> {
