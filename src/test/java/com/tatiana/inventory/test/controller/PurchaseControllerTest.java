@@ -197,12 +197,13 @@ public class PurchaseControllerTest {
         createdPurchase.setState(Purchase.ItemState.NOFUNDS);
 
         List<Purchase> purchases = new ArrayList<>();
+        CompletableFuture<Boolean> paymentResult = CompletableFuture.completedFuture(false);
 
         when(itemRepositoryMock.findOne(itemId)).thenReturn(item);
         when(purchaseRepositoryMock.findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE)).thenReturn(purchases);
-        when(billingServiceMock.pay(createdPurchase)).thenReturn(CompletableFuture.completedFuture(false));
         when(purchaseRepositoryMock.save(newPurchase)).thenReturn(createdPurchase);
         when(purchaseRepositoryMock.save(nofundsPurchase)).thenReturn(nofundsPurchase);
+        when(billingServiceMock.pay(createdPurchase)).thenReturn(paymentResult);
 
         MvcResult result = mockMvc.perform(post("/purchases")
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -247,10 +248,11 @@ public class PurchaseControllerTest {
         createdPurchase.setState(Purchase.ItemState.ACTIVE);
 
         List<Purchase> purchases = new ArrayList<>();
+        CompletableFuture<Boolean> paymentResult = CompletableFuture.completedFuture(true);
 
         when(itemRepositoryMock.findOne(itemId)).thenReturn(item);
         when(purchaseRepositoryMock.findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE)).thenReturn(purchases);
-        when(billingServiceMock.pay(createdPurchase)).thenReturn(CompletableFuture.completedFuture(true));
+        when(billingServiceMock.pay(createdPurchase)).thenReturn(paymentResult);
         when(purchaseRepositoryMock.save(newPurchase)).thenReturn(createdPurchase);
         when(purchaseRepositoryMock.save(nofundsPurchase)).thenReturn(nofundsPurchase);
 

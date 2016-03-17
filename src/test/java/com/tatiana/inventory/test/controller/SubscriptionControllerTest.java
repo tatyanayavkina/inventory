@@ -14,6 +14,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -27,15 +28,16 @@ import org.springframework.web.util.NestedServletException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = MockApplicationConfiguration.class)
@@ -140,5 +142,100 @@ public class SubscriptionControllerTest {
         verifyZeroInteractions(subscriptionRepositoryMock);
         verifyZeroInteractions(subscriptionServiceMock);
         verifyZeroInteractions(billingServiceMock);
+    }
+
+    @Test
+    public void testBuyItem_ShouldReturnSubscriptionWithStateNOFUNDS() throws Exception{
+        Integer serviceId = 1;
+        String clientEmail = "user4@gmail.com";
+        Integer subscriptionId = 2;
+        PurchaseIdentifier identifier = new PurchaseIdentifier(serviceId, clientEmail);
+
+        Service service = new Service();
+        service.setId(serviceId);
+        Subscription createdSubscription = new Subscription(service, clientEmail);
+        createdSubscription.setId(subscriptionId);
+
+        Subscription nofundsSubscription = new Subscription(service, clientEmail);
+        nofundsSubscription.setId(subscriptionId);
+        nofundsSubscription.setState(Subscription.ServiceState.NOFUNDS);
+
+        CompletableFuture<Boolean> paymentResult = CompletableFuture.completedFuture(false);
+
+        when(serviceRepositoryMock.findOne(serviceId)).thenReturn(service);
+        when(subscriptionServiceMock.createSubscription(service, clientEmail)).thenReturn(createdSubscription);
+        when(billingServiceMock.pay(createdSubscription)).thenReturn(paymentResult);
+
+        MvcResult result = mockMvc.perform(post("/subscriptions")
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(identifier))
+        )
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(result))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.id", is(subscriptionId)))
+                .andExpect(jsonPath("$.state", is("NOFUNDS")))
+                .andExpect(jsonPath("$.client", is(clientEmail)))
+                .andExpect(jsonPath("$.service.id", is(serviceId)));
+
+        verify(serviceRepositoryMock, times(1)).findOne(serviceId);
+        verifyNoMoreInteractions(serviceRepositoryMock);
+        ArgumentCaptor<Subscription> subscriptionCaptor = ArgumentCaptor.forClass(Subscription.class);
+        verify(subscriptionRepositoryMock, times(2)).save(subscriptionCaptor.capture());
+        verifyNoMoreInteractions(subscriptionRepositoryMock);
+        verify(subscriptionServiceMock, times(1)).createSubscription(service, clientEmail);
+        verifyNoMoreInteractions(subscriptionServiceMock);
+        verify(billingServiceMock, times(1)).pay(createdSubscription);
+        verifyNoMoreInteractions(billingServiceMock);
+    }
+
+    @Test
+    public void testBuyItem_ShouldReturnSubscriptionWithStateActive() throws Exception{
+        Integer serviceId = 1;
+        String clientEmail = "user4@gmail.com";
+        Integer subscriptionId = 2;
+        PurchaseIdentifier identifier = new PurchaseIdentifier(serviceId, clientEmail);
+
+        Service service = new Service();
+        service.setId(serviceId);
+        Subscription createdSubscription = new Subscription(service, clientEmail);
+        createdSubscription.setId(subscriptionId);
+
+        Subscription activeSubscription = new Subscription(service, clientEmail);
+        activeSubscription.setId(subscriptionId);
+        activeSubscription.setState(Subscription.ServiceState.ACTIVE);
+        CompletableFuture<Boolean> paymentResult = CompletableFuture.completedFuture(true);
+
+        when(serviceRepositoryMock.findOne(serviceId)).thenReturn(service);
+        when(subscriptionServiceMock.createSubscription(service, clientEmail)).thenReturn(createdSubscription);
+        when(billingServiceMock.pay(createdSubscription)).thenReturn(paymentResult);
+
+        MvcResult result = mockMvc.perform(post("/subscriptions")
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                        .content(TestUtil.convertObjectToJsonBytes(identifier))
+        )
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(result))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.id", is(subscriptionId)))
+                .andExpect(jsonPath("$.state", is("ACTIVE")))
+                .andExpect(jsonPath("$.client", is(clientEmail)))
+                .andExpect(jsonPath("$.service.id", is(serviceId)));
+
+        verify(serviceRepositoryMock, times(1)).findOne(serviceId);
+        verifyNoMoreInteractions(serviceRepositoryMock);
+        ArgumentCaptor<Subscription> subscriptionCaptor = ArgumentCaptor.forClass(Subscription.class);
+        verify(subscriptionRepositoryMock, times(2)).save(subscriptionCaptor.capture());
+        verifyNoMoreInteractions(subscriptionRepositoryMock);
+        verify(subscriptionServiceMock, times(1)).createSubscription(service, clientEmail);
+        verifyNoMoreInteractions(subscriptionServiceMock);
+        verify(billingServiceMock, times(1)).pay(createdSubscription);
+        verifyNoMoreInteractions(billingServiceMock);
     }
 }
