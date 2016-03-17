@@ -73,7 +73,7 @@ public class SubscriptionController {
      * Checks if requested client has subscription to service with serviceId
      *
      * @param serviceId - Integer
-     * @param email - String
+     * @param email     - String
      * @return HttpEntity<Boolean>
      */
     @SuppressWarnings("unchecked")

@@ -36,6 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 
+@SuppressWarnings("SpringJavaAutowiredMembersInspection")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = MockApplicationConfiguration.class)
 @WebAppConfiguration
@@ -151,10 +152,6 @@ public class SubscriptionControllerTest {
         Subscription createdSubscription = new Subscription(service, clientEmail);
         createdSubscription.setId(subscriptionId);
 
-        Subscription nofundsSubscription = new Subscription(service, clientEmail);
-        nofundsSubscription.setId(subscriptionId);
-        nofundsSubscription.setState(Subscription.ServiceState.NOFUNDS);
-
         CompletableFuture<Boolean> paymentResult = CompletableFuture.completedFuture(false);
 
         when(serviceRepositoryMock.findOne(serviceId)).thenReturn(service);
@@ -199,9 +196,6 @@ public class SubscriptionControllerTest {
         Subscription createdSubscription = new Subscription(service, clientEmail);
         createdSubscription.setId(subscriptionId);
 
-        Subscription activeSubscription = new Subscription(service, clientEmail);
-        activeSubscription.setId(subscriptionId);
-        activeSubscription.setState(Subscription.ServiceState.ACTIVE);
         CompletableFuture<Boolean> paymentResult = CompletableFuture.completedFuture(true);
 
         when(serviceRepositoryMock.findOne(serviceId)).thenReturn(service);

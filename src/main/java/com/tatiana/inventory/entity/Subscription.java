@@ -94,11 +94,11 @@ public class Subscription extends BasicEntity implements Serializable {
     /**
      * Finds startDate for subscription according to conditions and then calculate endDate
      *
-     * @param lastActiveSubscription - Subscription
+     * @param lastActiveSubscription  - Subscription
      * @param lastExpiredSubscription - Subscription
-     * If client has an active subscription then then we get its endDate and use it as startDate for new subscription
-     * If there are no active subscription for client then we set startDate as current date,
-     * but we change it if service is continuous and client has an expired subscription.
+     *                                If client has an active subscription then then we get its endDate and use it as startDate for new subscription
+     *                                If there are no active subscription for client then we set startDate as current date,
+     *                                but we change it if service is continuous and client has an expired subscription.
      */
     public void calculateStartAndEndDate(Subscription lastActiveSubscription, Subscription lastExpiredSubscription) {
         if (lastActiveSubscription == null) {
@@ -119,7 +119,7 @@ public class Subscription extends BasicEntity implements Serializable {
         CREATED("created"), ACTIVE("active"), EXPIRED("expired"),
         CANCELLED("cancelled"), RETURNED("returned"), NOFUNDS("nofunds");
 
-        private String state;
+        private final String state;
 
         ServiceState(String state) {
             this.state = state;

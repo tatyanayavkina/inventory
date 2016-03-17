@@ -5,6 +5,7 @@ import com.tatiana.inventory.repository.ItemRepository;
 import com.tatiana.inventory.repository.PurchaseRepository;
 import com.tatiana.inventory.repository.ServiceRepository;
 import com.tatiana.inventory.repository.SubscriptionRepository;
+import com.tatiana.inventory.service.PurchaseService;
 import com.tatiana.inventory.service.SubscriptionService;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
@@ -44,6 +45,11 @@ public class MockApplicationConfiguration {
     @Bean
     public ServiceRepository serviceRepository() {
         return Mockito.mock(ServiceRepository.class);
+    }
+
+    @Bean
+    public PurchaseService purchaseService() {
+        return Mockito.mock(PurchaseService.class);
     }
 
     @Bean

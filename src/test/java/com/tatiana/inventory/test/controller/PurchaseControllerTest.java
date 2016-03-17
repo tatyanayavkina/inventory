@@ -6,10 +6,9 @@ import com.tatiana.inventory.entity.Purchase;
 import com.tatiana.inventory.entry.PurchaseIdentifier;
 import com.tatiana.inventory.repository.ItemRepository;
 import com.tatiana.inventory.repository.PurchaseRepository;
-import com.tatiana.inventory.service.SubscriptionService;
+import com.tatiana.inventory.service.PurchaseService;
 import com.tatiana.inventory.test.config.MockApplicationConfiguration;
 import com.tatiana.inventory.test.utils.TestUtil;
-import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,6 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 
+@SuppressWarnings("SpringJavaAutowiredMembersInspection")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = MockApplicationConfiguration.class)
 @WebAppConfiguration
@@ -52,7 +52,7 @@ public class PurchaseControllerTest {
     @Autowired
     private ItemRepository itemRepositoryMock;
     @Autowired
-    private SubscriptionService subscriptionService;
+    private PurchaseService purchaseServiceMock;
     @Autowired
     private BillingService billingServiceMock;
 
@@ -60,7 +60,7 @@ public class PurchaseControllerTest {
     public void setUp() {
         Mockito.reset(purchaseRepositoryMock);
         Mockito.reset(itemRepositoryMock);
-        Mockito.reset(subscriptionService);
+        Mockito.reset(purchaseServiceMock);
         Mockito.reset(billingServiceMock);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
@@ -191,18 +191,13 @@ public class PurchaseControllerTest {
         Purchase createdPurchase = new Purchase(item, clientEmail);
         createdPurchase.setId(purchaseId);
 
-        Purchase nofundsPurchase = new Purchase(item, clientEmail);
-        createdPurchase.setId(purchaseId);
-        createdPurchase.setState(Purchase.ItemState.NOFUNDS);
-
         List<Purchase> purchases = new ArrayList<>();
         CompletableFuture<Boolean> paymentResult = CompletableFuture.completedFuture(false);
 
         when(itemRepositoryMock.findOne(itemId)).thenReturn(item);
         when(purchaseRepositoryMock.findByItemAndClientAndStateActive(itemId, clientEmail)).thenReturn(purchases);
-        when(subscriptionService.createPurchase(item, clientEmail)).thenReturn(createdPurchase);
+        when(purchaseServiceMock.createPurchase(item, clientEmail)).thenReturn(createdPurchase);
         when(billingServiceMock.pay(createdPurchase)).thenReturn(paymentResult);
-        when(purchaseRepositoryMock.save(nofundsPurchase)).thenReturn(nofundsPurchase);
 
         MvcResult result = mockMvc.perform(post("/purchases")
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -241,18 +236,13 @@ public class PurchaseControllerTest {
         Purchase createdPurchase = new Purchase(item, clientEmail);
         createdPurchase.setId(purchaseId);
 
-        Purchase activePurchase = new Purchase(item, clientEmail);
-        createdPurchase.setId(purchaseId);
-        createdPurchase.setState(Purchase.ItemState.ACTIVE);
-
         List<Purchase> purchases = new ArrayList<>();
         CompletableFuture<Boolean> paymentResult = CompletableFuture.completedFuture(true);
 
         when(itemRepositoryMock.findOne(itemId)).thenReturn(item);
         when(purchaseRepositoryMock.findByItemAndClientAndStateActive(itemId, clientEmail)).thenReturn(purchases);
         when(billingServiceMock.pay(createdPurchase)).thenReturn(paymentResult);
-        when(subscriptionService.createPurchase(item, clientEmail)).thenReturn(createdPurchase);
-        when(purchaseRepositoryMock.save(activePurchase)).thenReturn(activePurchase);
+        when(purchaseServiceMock.createPurchase(item, clientEmail)).thenReturn(createdPurchase);
 
         MvcResult result = mockMvc.perform(post("/purchases")
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)

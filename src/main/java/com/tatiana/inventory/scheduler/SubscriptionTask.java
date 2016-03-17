@@ -3,6 +3,7 @@ package com.tatiana.inventory.scheduler;
 import com.tatiana.inventory.billing.BillingService;
 import com.tatiana.inventory.entity.Subscription;
 import com.tatiana.inventory.repository.SubscriptionRepository;
+import com.tatiana.inventory.service.SubscriptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -12,13 +13,15 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-class SubscriptionTask {
+public class SubscriptionTask {
     private final SubscriptionRepository subscriptionRepository;
+    private final SubscriptionService subscriptionService;
     private final BillingService billingService;
 
     @Autowired
-    public SubscriptionTask(SubscriptionRepository subscriptionRepository, BillingService billingService) {
+    public SubscriptionTask(SubscriptionRepository subscriptionRepository, SubscriptionService subscriptionService, BillingService billingService) {
         this.subscriptionRepository = subscriptionRepository;
+        this.subscriptionService = subscriptionService;
         this.billingService = billingService;
     }
 
@@ -40,9 +43,7 @@ class SubscriptionTask {
         List<Subscription> subscriptions = subscriptionRepository.findByStateAndIsAutoAndEndDateBetween(first, second);
         subscriptions.stream()
                 .forEach((s) -> {
-                    Subscription renewal = new Subscription(s.getService(), s.getClient());
-                    renewal.setStartDate(s.getEndDate());
-                    renewal.calculateEndDate();
+                    Subscription renewal = subscriptionService.createSubscription(s);
                     subscriptionRepository.save(renewal);
                     billingService.pay(renewal).thenAccept((success) -> {
                         if (success) {

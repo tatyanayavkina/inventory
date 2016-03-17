@@ -6,7 +6,7 @@ import com.tatiana.inventory.entity.Purchase;
 import com.tatiana.inventory.entry.PurchaseIdentifier;
 import com.tatiana.inventory.repository.ItemRepository;
 import com.tatiana.inventory.repository.PurchaseRepository;
-import com.tatiana.inventory.service.SubscriptionService;
+import com.tatiana.inventory.service.PurchaseService;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -23,17 +23,17 @@ import java.util.concurrent.CompletableFuture;
 public class PurchaseController {
     private final ItemRepository itemRepository;
     private final PurchaseRepository purchaseRepository;
-    private final SubscriptionService subscriptionService;
+    private final PurchaseService purchaseService;
     private final BillingService billingService;
 
     // --Commented out by Inspection (17.03.2016 17:08):private final Logger logger = Logger.getLogger(PurchaseController.class);
 
     @Autowired
     public PurchaseController(ItemRepository itemRepository, PurchaseRepository purchaseRepository,
-                              SubscriptionService subscriptionService, BillingService billingService) {
+                              PurchaseService purchaseService, BillingService billingService) {
         this.itemRepository = itemRepository;
         this.purchaseRepository = purchaseRepository;
-        this.subscriptionService = subscriptionService;
+        this.purchaseService = purchaseService;
         this.billingService = billingService;
     }
 
@@ -58,7 +58,7 @@ public class PurchaseController {
         Purchase purchase = findByItemAndClientAndStateActive(itemId, email);
         if (purchase == null) {
             // todo: как-то исправить!
-            Purchase createdPurchase = subscriptionService.createPurchase(item, email);
+            Purchase createdPurchase = purchaseService.createPurchase(item, email);
 
             return billingService.pay(createdPurchase).thenApply(
                     (success) -> {
@@ -80,7 +80,7 @@ public class PurchaseController {
      * Checks if requested client has purchase of item with itemId
      *
      * @param itemId - Integer
-     * @param email - String
+     * @param email  - String
      * @return HttpEntity<Boolean>
      */
     @SuppressWarnings("unchecked")

@@ -1,12 +1,8 @@
 package com.tatiana.inventory.service.impl;
 
-import com.tatiana.inventory.entity.Item;
-import com.tatiana.inventory.entity.Purchase;
 import com.tatiana.inventory.entity.Subscription;
-import com.tatiana.inventory.repository.PurchaseRepository;
 import com.tatiana.inventory.repository.SubscriptionRepository;
 import com.tatiana.inventory.service.SubscriptionService;
-import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +11,12 @@ import java.util.List;
 @Service
 public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
-    private final PurchaseRepository purchaseRepository;
 
     // --Commented out by Inspection (17.03.2016 17:12):private final Logger logger = Logger.getLogger(SubscriptionServiceImpl.class);
 
     @Autowired
-    public SubscriptionServiceImpl(SubscriptionRepository subscriptionRepository, PurchaseRepository purchaseRepository) {
+    public SubscriptionServiceImpl(SubscriptionRepository subscriptionRepository) {
         this.subscriptionRepository = subscriptionRepository;
-        this.purchaseRepository = purchaseRepository;
     }
 
     @Override
@@ -36,9 +30,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public Purchase createPurchase(Item item, String email) {
-        Purchase purchase = new Purchase(item, email);
-        return purchaseRepository.save(purchase);
+    public Subscription createSubscription(Subscription oldSubscription) {
+        Subscription newSubscription = new Subscription(oldSubscription.getService(), oldSubscription.getClient());
+        newSubscription.setStartDate(oldSubscription.getEndDate());
+        newSubscription.calculateEndDate();
+        return newSubscription;
     }
 
     private Subscription getLastSubscriptionByServiceAndClientAndState(Integer serviceId, String clientEmail, Subscription.ServiceState state) {
