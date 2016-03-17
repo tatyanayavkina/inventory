@@ -7,8 +7,8 @@ import com.tatiana.inventory.entry.PurchaseIdentifier;
 import com.tatiana.inventory.repository.ItemRepository;
 import com.tatiana.inventory.repository.PurchaseRepository;
 import com.tatiana.inventory.service.SubscriptionService;
-import com.tatiana.inventory.test.utils.TestUtil;
 import com.tatiana.inventory.test.config.MockApplicationConfiguration;
+import com.tatiana.inventory.test.utils.TestUtil;
 import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,19 +33,20 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = MockApplicationConfiguration.class)
 @WebAppConfiguration
 public class PurchaseControllerTest {
+    // --Commented out by Inspection (17.03.2016 17:08):private final Logger logger = Logger.getLogger(PurchaseControllerTest.class);
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
     private MockMvc mockMvc;
     @Autowired
     private WebApplicationContext webApplicationContext;
-
     @Autowired
     private PurchaseRepository purchaseRepositoryMock;
     @Autowired
@@ -54,10 +55,6 @@ public class PurchaseControllerTest {
     private SubscriptionService subscriptionService;
     @Autowired
     private BillingService billingServiceMock;
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-    private final Logger logger = Logger.getLogger(PurchaseControllerTest.class);
 
     @Before
     public void setUp() {
@@ -69,27 +66,27 @@ public class PurchaseControllerTest {
     }
 
     @Test
-    public void testIsClientHasPurchase_ShouldReturnFalse() throws Exception{
+    public void testIsClientHasPurchase_ShouldReturnFalse() throws Exception {
         Integer itemId = 5;
         String clientEmail = "user1@gmail.com";
         List<Purchase> purchases = new ArrayList<>();
 
-        when(purchaseRepositoryMock.findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE)).thenReturn(purchases);
+        when(purchaseRepositoryMock.findByItemAndClientAndStateActive(itemId, clientEmail)).thenReturn(purchases);
 
         mockMvc.perform(get("/purchases/info")
-                    .param("itemId", itemId.toString())
-                    .param("email", clientEmail)
+                        .param("itemId", itemId.toString())
+                        .param("email", clientEmail)
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(content().string("false"));
 
-        verify(purchaseRepositoryMock, times(1)).findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE);
+        verify(purchaseRepositoryMock, times(1)).findByItemAndClientAndStateActive(itemId, clientEmail);
         verifyNoMoreInteractions(purchaseRepositoryMock);
     }
 
     @Test
-    public void testIsClientHasPurchase_ShouldReturnTrue() throws Exception{
+    public void testIsClientHasPurchase_ShouldReturnTrue() throws Exception {
         Integer itemId = 1;
         String clientEmail = "user1@gmail.com";
 
@@ -101,7 +98,7 @@ public class PurchaseControllerTest {
         List<Purchase> purchases = new ArrayList<>();
         purchases.add(purchase);
 
-        when(purchaseRepositoryMock.findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE)).thenReturn(purchases);
+        when(purchaseRepositoryMock.findByItemAndClientAndStateActive(itemId, clientEmail)).thenReturn(purchases);
 
         mockMvc.perform(get("/purchases/info")
                         .param("itemId", itemId.toString())
@@ -111,11 +108,11 @@ public class PurchaseControllerTest {
                 .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(content().string("true"));
 
-        verify(purchaseRepositoryMock, times(1)).findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE);
+        verify(purchaseRepositoryMock, times(1)).findByItemAndClientAndStateActive(itemId, clientEmail);
         verifyNoMoreInteractions(purchaseRepositoryMock);
     }
 
-    public void testBuyItem_ShouldReturnInternalServerError() throws Exception{
+    public void testBuyItem_ShouldReturnInternalServerError() throws Exception {
         Integer itemId = 2;
         String clientEmail = "user5@gmail.com";
         PurchaseIdentifier identifier = new PurchaseIdentifier(itemId, clientEmail);
@@ -141,7 +138,7 @@ public class PurchaseControllerTest {
     }
 
     @Test
-    public void testBuyItem_ShouldReturnExistedActivePurchase() throws Exception{
+    public void testBuyItem_ShouldReturnExistedActivePurchase() throws Exception {
         Integer itemId = 1;
         String clientEmail = "user4@gmail.com";
         Integer purchaseId = 2;
@@ -158,7 +155,7 @@ public class PurchaseControllerTest {
         purchases.add(purchase);
 
         when(itemRepositoryMock.findOne(itemId)).thenReturn(item);
-        when(purchaseRepositoryMock.findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE)).thenReturn(purchases);
+        when(purchaseRepositoryMock.findByItemAndClientAndStateActive(itemId, clientEmail)).thenReturn(purchases);
 
         MvcResult result = mockMvc.perform(post("/purchases")
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -177,13 +174,13 @@ public class PurchaseControllerTest {
 
         verify(itemRepositoryMock, times(1)).findOne(itemId);
         verifyNoMoreInteractions(itemRepositoryMock);
-        verify(purchaseRepositoryMock, times(1)).findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE);
+        verify(purchaseRepositoryMock, times(1)).findByItemAndClientAndStateActive(itemId, clientEmail);
         verifyNoMoreInteractions(purchaseRepositoryMock);
         verifyZeroInteractions(billingServiceMock);
     }
 
     @Test
-    public void testBuyItem_ShouldReturnNewPurchaseWithStateNOFUNDS() throws Exception{
+    public void testBuyItem_ShouldReturnNewPurchaseWithStateNOFUNDS() throws Exception {
         Integer itemId = 1;
         String clientEmail = "user4@gmail.com";
         Integer purchaseId = 2;
@@ -202,10 +199,10 @@ public class PurchaseControllerTest {
         CompletableFuture<Boolean> paymentResult = CompletableFuture.completedFuture(false);
 
         when(itemRepositoryMock.findOne(itemId)).thenReturn(item);
-        when(purchaseRepositoryMock.findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE)).thenReturn(purchases);
+        when(purchaseRepositoryMock.findByItemAndClientAndStateActive(itemId, clientEmail)).thenReturn(purchases);
         when(subscriptionService.createPurchase(item, clientEmail)).thenReturn(createdPurchase);
-        when(purchaseRepositoryMock.save(nofundsPurchase)).thenReturn(nofundsPurchase);
         when(billingServiceMock.pay(createdPurchase)).thenReturn(paymentResult);
+        when(purchaseRepositoryMock.save(nofundsPurchase)).thenReturn(nofundsPurchase);
 
         MvcResult result = mockMvc.perform(post("/purchases")
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -224,7 +221,7 @@ public class PurchaseControllerTest {
 
         verify(itemRepositoryMock, times(1)).findOne(itemId);
         verifyNoMoreInteractions(itemRepositoryMock);
-        verify(purchaseRepositoryMock, times(1)).findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE);
+        verify(purchaseRepositoryMock, times(1)).findByItemAndClientAndStateActive(itemId, clientEmail);
         ArgumentCaptor<Purchase> purchaseCaptor = ArgumentCaptor.forClass(Purchase.class);
         verify(purchaseRepositoryMock, times(1)).save(purchaseCaptor.capture());
         verifyNoMoreInteractions(purchaseRepositoryMock);
@@ -233,7 +230,7 @@ public class PurchaseControllerTest {
     }
 
     @Test
-    public void testBuyItem_ShouldReturnNewPurchaseWithStateACTIVE() throws Exception{
+    public void testBuyItem_ShouldReturnNewPurchaseWithStateACTIVE() throws Exception {
         Integer itemId = 1;
         String clientEmail = "user4@gmail.com";
         Integer purchaseId = 2;
@@ -252,7 +249,7 @@ public class PurchaseControllerTest {
         CompletableFuture<Boolean> paymentResult = CompletableFuture.completedFuture(true);
 
         when(itemRepositoryMock.findOne(itemId)).thenReturn(item);
-        when(purchaseRepositoryMock.findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE)).thenReturn(purchases);
+        when(purchaseRepositoryMock.findByItemAndClientAndStateActive(itemId, clientEmail)).thenReturn(purchases);
         when(billingServiceMock.pay(createdPurchase)).thenReturn(paymentResult);
         when(subscriptionService.createPurchase(item, clientEmail)).thenReturn(createdPurchase);
         when(purchaseRepositoryMock.save(activePurchase)).thenReturn(activePurchase);
@@ -274,7 +271,7 @@ public class PurchaseControllerTest {
 
         verify(itemRepositoryMock, times(1)).findOne(itemId);
         verifyNoMoreInteractions(itemRepositoryMock);
-        verify(purchaseRepositoryMock, times(1)).findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE);
+        verify(purchaseRepositoryMock, times(1)).findByItemAndClientAndStateActive(itemId, clientEmail);
         ArgumentCaptor<Purchase> purchaseCaptor = ArgumentCaptor.forClass(Purchase.class);
         verify(purchaseRepositoryMock, times(1)).save(purchaseCaptor.capture());
         verifyNoMoreInteractions(purchaseRepositoryMock);

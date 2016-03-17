@@ -9,16 +9,18 @@ import com.tatiana.inventory.entity.Subscription;
 public interface SubscriptionService {
     /**
      * Creates new subscription for client and finds startDate according to conditions
-     * @param service
-     * @param email
+     *
+     * @param service - Service
+     * @param email - String
      * @return Subscription
      */
     Subscription createSubscription(Service service, String email);
 
     /**
      * Creates new Purchase for client
-     * @param item
-     * @param email
+     *
+     * @param item - Item
+     * @param email - String
      * @return
      */
     Purchase createPurchase(Item item, String email);

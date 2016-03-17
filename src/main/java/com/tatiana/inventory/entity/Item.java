@@ -1,7 +1,6 @@
 package com.tatiana.inventory.entity;
 
 import org.hibernate.annotations.Columns;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.money.MonetaryAmount;
@@ -9,60 +8,60 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name="items")
-public class Item extends BasicEntity  implements Serializable {
+@Table(name = "items")
+public class Item extends BasicEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "items_seq_gen")
     @SequenceGenerator(name = "items_seq_gen", sequenceName = "items_id_seq")
-    @Column(name="id", nullable=false, unique=true, length=11)
+    @Column(name = "id", nullable = false, unique = true, length = 11)
     private Integer id;
 
-    @Column(name="item_name", nullable=false)
+    @Column(name = "item_name", nullable = false)
     private String name;
 
-    @Column(name="description")
+    @Column(name = "description")
     private String description;
 
     @Columns(columns = {
-            @Column(name="currency"),
-            @Column(name="amount")
+            @Column(name = "currency"),
+            @Column(name = "amount")
     })
     @Type(type = "org.jadira.usertype.moneyandcurrency.moneta.PersistentMoneyAmountAndCurrency")
     private MonetaryAmount price;
 
-    public Item(){
+    public Item() {
 
     }
 
-    public Integer getId(){
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Integer id){
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    public void setName(String name){
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getDescription(){
+    public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description){
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    public MonetaryAmount getPrice(){
+    public MonetaryAmount getPrice() {
         return price;
     }
 
-    public void setPrice(MonetaryAmount price){
+    public void setPrice(MonetaryAmount price) {
         this.price = price;
     }
 }

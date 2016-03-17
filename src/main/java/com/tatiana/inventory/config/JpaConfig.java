@@ -10,11 +10,9 @@ import com.tatiana.inventory.auditing.DateTimeService;
 import com.tatiana.inventory.auditing.UsernameAuditorAware;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -35,7 +33,7 @@ import java.util.Properties;
 @EnableTransactionManagement
 @EnableJpaAuditing(dateTimeProviderRef = "dateTimeProvider")
 @EnableJpaRepositories(basePackageClasses = Application.class)
-public class JpaConfig implements TransactionManagementConfigurer {
+class JpaConfig implements TransactionManagementConfigurer {
     @Value("${dataSource.driverClassName}")
     private String driver;
     @Value("${dataSource.url}")
@@ -49,7 +47,7 @@ public class JpaConfig implements TransactionManagementConfigurer {
     @Value("${hibernate.hbm2ddl.auto}")
     private String hbm2ddlAuto;
 
-    @Bean(name="dataSource")
+    @Bean(name = "dataSource")
     public DataSource configureDataSource() {
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(driver);
@@ -72,7 +70,7 @@ public class JpaConfig implements TransactionManagementConfigurer {
 //        return dataSource;
 //    }
 
-    @Bean(name ="entityManagerFactory")
+    @Bean(name = "entityManagerFactory")
     public LocalContainerEntityManagerFactoryBean configureEntityManagerFactory() {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setDataSource(configureDataSource());
@@ -87,7 +85,7 @@ public class JpaConfig implements TransactionManagementConfigurer {
         return entityManagerFactoryBean;
     }
 
-    @Bean(name="transactionManager")
+    @Bean(name = "transactionManager")
     public PlatformTransactionManager annotationDrivenTransactionManager() {
         return new JpaTransactionManager();
     }
@@ -102,7 +100,7 @@ public class JpaConfig implements TransactionManagementConfigurer {
         return new AuditingDateTimeProvider(dateTimeService);
     }
 
-//    @Profile(Profiles.APPLICATION)
+    //    @Profile(Profiles.APPLICATION)
     @Bean
     DateTimeService currentTimeDateTimeService() {
         return new CurrentTimeDateTimeService();

@@ -27,25 +27,25 @@ public class SubscriptionTest {
     private Subscription lastExpiredSubscription2;
 
     @Before
-    public void setData(){
+    public void setData() {
         setServices();
         setSubscriptions();
     }
 
-    private void setServices(){
+    private void setServices() {
         service1 = new Service();
         service1.setName("service1");
-        service1.setLength(Service.Length.DAY);
+        service1.setLength(Service.Length.MONTH);
         service1.setIsContinuous(true);
     }
 
-    private void setSubscriptions(){
+    private void setSubscriptions() {
         // ------
         lastActiveSubscription1 = new Subscription();
         lastActiveSubscription1.setService(service1);
         lastActiveSubscription1.setState(Subscription.ServiceState.ACTIVE);
         lastActiveSubscription1.setStartDate(getDateFromString("2016-03-14 15:13:28"));
-        lastActiveSubscription1.setEndDate(getDateFromString("2016-03-15 15:13:28"));
+        lastActiveSubscription1.setEndDate(getDateFromString("2016-04-14 15:13:28"));
 
         lastExpiredSubscription1 = new Subscription();
         lastExpiredSubscription1.setService(service1);
@@ -59,33 +59,33 @@ public class SubscriptionTest {
         lastExpiredSubscription2.setService(service1);
         lastExpiredSubscription2.setState(Subscription.ServiceState.EXPIRED);
         lastExpiredSubscription2.setStartDate(getDateFromString("2016-03-10 15:13:28"));
-        lastExpiredSubscription2.setEndDate(getDateFromString("2016-03-11 15:13:28"));
+        lastExpiredSubscription2.setEndDate(getDateFromString("2016-04-10 15:13:28"));
     }
 
-    private Date getDateFromString(String dateString){
+    private Date getDateFromString(String dateString) {
         Date date = null;
-        try{
+        try {
             date = formatter.parse(dateString);
-        } catch (ParseException ex){
+        } catch (ParseException ex) {
             logger.info("ParseException in dateString parsing");
         }
         return date;
     }
 
     @Test
-    public void testCalculateStartAndEndDate_ShouldUseEndDateOfLastActive(){
+    public void testCalculateStartAndEndDate_ShouldUseEndDateOfLastActive() {
         Subscription subscription1 = new Subscription(service1, "user1@mail.ru");
         subscription1.calculateStartAndEndDate(lastActiveSubscription1, lastExpiredSubscription1);
-        assertEquals(formatter.format(subscription1.getStartDate()), "2016-03-15 15:13:28");
-        assertEquals(formatter.format(subscription1.getEndDate()), "2016-03-16 15:13:28");
+        assertEquals(formatter.format(subscription1.getStartDate()), "2016-04-14 15:13:28");
+        assertEquals(formatter.format(subscription1.getEndDate()), "2016-05-14 15:13:28");
     }
 
     @Test
-    public void testCalculateStartAndEndDate_ShouldUseEndDateOfLastExpired(){
+    public void testCalculateStartAndEndDate_ShouldUseEndDateOfLastExpired() {
         Subscription subscription2 = new Subscription(service1, "user2@gmail.com");
         subscription2.calculateStartAndEndDate(lastActiveSubscription2, lastExpiredSubscription2);
-        assertEquals(formatter.format(subscription2.getStartDate()), "2016-03-11 15:13:28");
-        assertEquals(formatter.format(subscription2.getEndDate()), "2016-03-12 15:13:28");
+        assertEquals(formatter.format(subscription2.getStartDate()), "2016-04-10 15:13:28");
+        assertEquals(formatter.format(subscription2.getEndDate()), "2016-05-10 15:13:28");
     }
 
 }

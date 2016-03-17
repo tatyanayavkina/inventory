@@ -5,7 +5,7 @@ import org.springframework.data.auditing.DateTimeProvider;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-public class AuditingDateTimeProvider implements DateTimeProvider{
+public class AuditingDateTimeProvider implements DateTimeProvider {
     private final DateTimeService dateTimeService;
 
     public AuditingDateTimeProvider(DateTimeService dateTimeService) {

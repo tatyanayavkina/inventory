@@ -9,10 +9,9 @@ import java.util.List;
 
 
 //@Repository
-public interface PurchaseRepository extends JpaRepository<Purchase,Integer> {
+public interface PurchaseRepository extends JpaRepository<Purchase, Integer> {
 
     @Query("select p from Purchase p where p.item.id = :itemId and p.client = :client " +
-            "and p.state = :state")
-    List<Purchase> findByItemAndClientAndState(@Param("itemId") Integer itemId, @Param("client") String client,
-                                         @Param("state") Purchase.ItemState state);
+            "and p.state = 'ACTIVE'")
+    List<Purchase> findByItemAndClientAndStateActive(@Param("itemId") Integer itemId, @Param("client") String client);
 }

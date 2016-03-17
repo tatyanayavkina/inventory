@@ -20,18 +20,18 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@RequestMapping(value="/purchases")
+@RequestMapping(value = "/purchases")
 public class PurchaseController {
     private final ItemRepository itemRepository;
     private final PurchaseRepository purchaseRepository;
     private final SubscriptionService subscriptionService;
     private final BillingService billingService;
 
-    private final Logger logger = Logger.getLogger(PurchaseController.class);
+    // --Commented out by Inspection (17.03.2016 17:08):private final Logger logger = Logger.getLogger(PurchaseController.class);
 
     @Autowired
     public PurchaseController(ItemRepository itemRepository, PurchaseRepository purchaseRepository,
-                              SubscriptionService subscriptionService,BillingService billingService){
+                              SubscriptionService subscriptionService, BillingService billingService) {
         this.itemRepository = itemRepository;
         this.purchaseRepository = purchaseRepository;
         this.subscriptionService = subscriptionService;
@@ -40,22 +40,24 @@ public class PurchaseController {
 
     /**
      * Creates new purchase for user with requested email
-     * @param identifier
+     *
+     * @param identifier - PurchaseIdentifier
      * @return HttpEntity<Purchase>
      * @throws ObjectNotFoundException
      */
+    @SuppressWarnings("unchecked")
     @Async
-    @RequestMapping(method= RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public CompletableFuture<HttpEntity<Purchase>> buyItem(@RequestBody PurchaseIdentifier identifier) throws ObjectNotFoundException {
         Integer itemId = identifier.getResourceId();
         String email = identifier.getClientEmail();
         Item item = itemRepository.findOne(itemId);
-        if ( item == null ){
+        if (item == null) {
             throw new ObjectNotFoundException(itemId, Item.class.getName());
         }
 
-        Purchase purchase = findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
-        if (purchase == null){
+        Purchase purchase = findByItemAndClientAndStateActive(itemId, email);
+        if (purchase == null) {
             // todo: как-то исправить!
             Purchase createdPurchase = subscriptionService.createPurchase(item, email);
 
@@ -77,26 +79,28 @@ public class PurchaseController {
 
     /**
      * Checks if requested client has purchase of item with itemId
-     * @param itemId
-     * @param email
+     *
+     * @param itemId - Integer
+     * @param email - String
      * @return HttpEntity<Boolean>
      */
-    @RequestMapping(value="/info", method= RequestMethod.GET)
-    public HttpEntity<Boolean> isClientHasPurchase(@RequestParam("itemId") Integer itemId, @RequestParam("email") String email){
+    @SuppressWarnings("unchecked")
+    @RequestMapping(value = "/info", method = RequestMethod.GET)
+    public HttpEntity<Boolean> isClientHasPurchase(@RequestParam("itemId") Integer itemId, @RequestParam("email") String email) {
         Boolean clientHasActivePurchase = true;
-        Purchase purchase = findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
+        Purchase purchase = findByItemAndClientAndStateActive(itemId, email);
 
-        if(purchase == null){
+        if (purchase == null) {
             clientHasActivePurchase = false;
         }
 
         return new ResponseEntity(clientHasActivePurchase, HttpStatus.OK);
     }
 
-    private Purchase findByItemAndClientAndState(Integer itemId, String clientEmail, Purchase.ItemState state){
+    private Purchase findByItemAndClientAndStateActive(Integer itemId, String clientEmail) {
         Purchase purchase = null;
-        List<Purchase> purchases = purchaseRepository.findByItemAndClientAndState(itemId, clientEmail, state);
-        if(purchases.size() > 0){
+        List<Purchase> purchases = purchaseRepository.findByItemAndClientAndStateActive(itemId, clientEmail);
+        if (purchases.size() > 0) {
             purchase = purchases.get(0);
         }
         return purchase;

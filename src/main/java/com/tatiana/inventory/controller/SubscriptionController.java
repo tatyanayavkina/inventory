@@ -1,7 +1,8 @@
 package com.tatiana.inventory.controller;
 
 import com.tatiana.inventory.billing.BillingService;
-import com.tatiana.inventory.entity.*;
+import com.tatiana.inventory.entity.Service;
+import com.tatiana.inventory.entity.Subscription;
 import com.tatiana.inventory.entry.PurchaseIdentifier;
 import com.tatiana.inventory.repository.ServiceRepository;
 import com.tatiana.inventory.repository.SubscriptionRepository;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@RequestMapping(value="/subscriptions")
+@RequestMapping(value = "/subscriptions")
 public class SubscriptionController {
     private final ServiceRepository serviceRepository;
     private final SubscriptionRepository subscriptionRepository;
@@ -27,7 +28,7 @@ public class SubscriptionController {
 
     @Autowired
     public SubscriptionController(ServiceRepository serviceRepository, SubscriptionRepository subscriptionRepository,
-                                  SubscriptionService subscriptionService, BillingService billingService){
+                                  SubscriptionService subscriptionService, BillingService billingService) {
         this.serviceRepository = serviceRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.subscriptionService = subscriptionService;
@@ -36,18 +37,20 @@ public class SubscriptionController {
 
     /**
      * Creates new subscription to service with serviceId for requested user
-     * @param identifier
+     *
+     * @param identifier - PurchaseIdentifier
      * @return HttpEntity<Subscription>
      * @throws ObjectNotFoundException
      */
+    @SuppressWarnings("unchecked")
     @Async
-    @RequestMapping(method= RequestMethod.POST)
-    public CompletableFuture<HttpEntity<Subscription>> buyService(@RequestBody PurchaseIdentifier identifier) throws ObjectNotFoundException{
+    @RequestMapping(method = RequestMethod.POST)
+    public CompletableFuture<HttpEntity<Subscription>> buyService(@RequestBody PurchaseIdentifier identifier) throws ObjectNotFoundException {
         Integer serviceId = identifier.getResourceId();
         String email = identifier.getClientEmail();
         Service service = serviceRepository.findOne(serviceId);
 
-        if ( service == null ){
+        if (service == null) {
             throw new ObjectNotFoundException(serviceId, Service.class.getName());
         }
         Subscription subscription = subscriptionService.createSubscription(service, email);
@@ -68,15 +71,17 @@ public class SubscriptionController {
 
     /**
      * Checks if requested client has subscription to service with serviceId
-     * @param serviceId
-     * @param email
+     *
+     * @param serviceId - Integer
+     * @param email - String
      * @return HttpEntity<Boolean>
      */
-    @RequestMapping(value="/info", method= RequestMethod.GET)
+    @SuppressWarnings("unchecked")
+    @RequestMapping(value = "/info", method = RequestMethod.GET)
     public HttpEntity<Boolean> isClientHasSubscription(@RequestParam("serviceId") Integer serviceId, @RequestParam("email") String email) {
         Boolean clientHasActiveSubscription = false;
         List<Subscription> subscriptions = subscriptionRepository.findByServiceAndClientAndState(serviceId, email, Subscription.ServiceState.ACTIVE);
-        if( subscriptions.size() > 0 ){
+        if (subscriptions.size() > 0) {
             clientHasActiveSubscription = true;
         }
 

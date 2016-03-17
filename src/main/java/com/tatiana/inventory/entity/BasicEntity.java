@@ -17,7 +17,7 @@ import java.time.ZonedDateTime;
  */
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
-public class BasicEntity{
+class BasicEntity {
     @Column(name = "creation_time", nullable = false)
     @Type(type = "org.jadira.usertype.dateandtime.threeten.PersistentZonedDateTime")
     @CreatedDate

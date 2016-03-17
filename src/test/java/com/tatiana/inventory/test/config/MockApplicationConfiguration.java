@@ -16,43 +16,43 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
 @ComponentScan(value = "com.tatiana.inventory", excludeFilters = {
-        @ComponentScan.Filter(pattern = "com.tatiana.inventory.billing.impl.*", type= FilterType.ASPECTJ),
-        @ComponentScan.Filter(pattern = "com.tatiana.inventory.repository.*", type= FilterType.ASPECTJ),
-        @ComponentScan.Filter(pattern = "com.tatiana.inventory.service.impl.*", type= FilterType.ASPECTJ),
-        @ComponentScan.Filter(pattern = "com.tatiana.inventory.config.*", type= FilterType.ASPECTJ),
-        @ComponentScan.Filter(value = com.tatiana.inventory.Application.class, type= FilterType.ASSIGNABLE_TYPE)
+        @ComponentScan.Filter(pattern = "com.tatiana.inventory.billing.impl.*", type = FilterType.ASPECTJ),
+        @ComponentScan.Filter(pattern = "com.tatiana.inventory.repository.*", type = FilterType.ASPECTJ),
+        @ComponentScan.Filter(pattern = "com.tatiana.inventory.service.impl.*", type = FilterType.ASPECTJ),
+        @ComponentScan.Filter(pattern = "com.tatiana.inventory.config.*", type = FilterType.ASPECTJ),
+        @ComponentScan.Filter(value = com.tatiana.inventory.Application.class, type = FilterType.ASSIGNABLE_TYPE)
 })
 @EnableWebMvc
 @EnableAsync
 public class MockApplicationConfiguration {
 
     @Bean
-    public SubscriptionRepository subscriptionRepository(){
+    public SubscriptionRepository subscriptionRepository() {
         return Mockito.mock(SubscriptionRepository.class);
     }
 
     @Bean
-    public PurchaseRepository purchaseRepository(){
+    public PurchaseRepository purchaseRepository() {
         return Mockito.mock(PurchaseRepository.class);
     }
 
     @Bean
-    public ItemRepository itemRepository(){
+    public ItemRepository itemRepository() {
         return Mockito.mock(ItemRepository.class);
     }
 
     @Bean
-    public ServiceRepository serviceRepository(){
+    public ServiceRepository serviceRepository() {
         return Mockito.mock(ServiceRepository.class);
     }
 
     @Bean
-    public SubscriptionService subscriptionService(){
+    public SubscriptionService subscriptionService() {
         return Mockito.mock(SubscriptionService.class);
     }
 
     @Bean
-    public BillingService billingService(){
+    public BillingService billingService() {
         return Mockito.mock(BillingService.class);
     }
 }

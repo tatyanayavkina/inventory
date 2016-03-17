@@ -7,8 +7,8 @@ import com.tatiana.inventory.entry.PurchaseIdentifier;
 import com.tatiana.inventory.repository.ServiceRepository;
 import com.tatiana.inventory.repository.SubscriptionRepository;
 import com.tatiana.inventory.service.SubscriptionService;
-import com.tatiana.inventory.test.utils.TestUtil;
 import com.tatiana.inventory.test.config.MockApplicationConfiguration;
+import com.tatiana.inventory.test.utils.TestUtil;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,21 +32,19 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = MockApplicationConfiguration.class)
 @WebAppConfiguration
 public class SubscriptionControllerTest {
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
     private MockMvc mockMvc;
     @Autowired
     private WebApplicationContext webApplicationContext;
-
     @Autowired
     private ServiceRepository serviceRepositoryMock;
     @Autowired
@@ -55,9 +53,6 @@ public class SubscriptionControllerTest {
     private SubscriptionService subscriptionServiceMock;
     @Autowired
     private BillingService billingServiceMock;
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @Before
     public void setUp() {
@@ -69,7 +64,7 @@ public class SubscriptionControllerTest {
     }
 
     @Test
-    public void testIsClientHasSubscription_ShouldReturnFalse() throws Exception{
+    public void testIsClientHasSubscription_ShouldReturnFalse() throws Exception {
         Integer serviceId = 5;
         String clientEmail = "user1@gmail.com";
         List<Subscription> subscriptions = new ArrayList<>();
@@ -77,8 +72,8 @@ public class SubscriptionControllerTest {
         when(subscriptionRepositoryMock.findByServiceAndClientAndState(serviceId, clientEmail, Subscription.ServiceState.ACTIVE)).thenReturn(subscriptions);
 
         mockMvc.perform(get("/subscriptions/info")
-                    .param("serviceId", serviceId.toString())
-                    .param("email", clientEmail)
+                        .param("serviceId", serviceId.toString())
+                        .param("email", clientEmail)
         )
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8))
@@ -89,7 +84,7 @@ public class SubscriptionControllerTest {
     }
 
     @Test
-    public void testIsClientHasSubscription_ShouldReturnTrue() throws Exception{
+    public void testIsClientHasSubscription_ShouldReturnTrue() throws Exception {
         Integer serviceId = 5;
         String clientEmail = "user1@gmail.com";
 
@@ -118,7 +113,7 @@ public class SubscriptionControllerTest {
     }
 
     @Test
-    public void testBuyService_ShouldReturnInternalServerError() throws Exception{
+    public void testBuyService_ShouldReturnInternalServerError() throws Exception {
         Integer serviceId = 3;
         String clientEmail = "user1@gmail.com";
         PurchaseIdentifier identifier = new PurchaseIdentifier(serviceId, clientEmail);
@@ -145,7 +140,7 @@ public class SubscriptionControllerTest {
     }
 
     @Test
-    public void testBuyItem_ShouldReturnSubscriptionWithStateNOFUNDS() throws Exception{
+    public void testBuyItem_ShouldReturnSubscriptionWithStateNOFUNDS() throws Exception {
         Integer serviceId = 1;
         String clientEmail = "user4@gmail.com";
         Integer subscriptionId = 2;
@@ -193,7 +188,7 @@ public class SubscriptionControllerTest {
     }
 
     @Test
-    public void testBuyItem_ShouldReturnSubscriptionWithStateActive() throws Exception{
+    public void testBuyItem_ShouldReturnSubscriptionWithStateActive() throws Exception {
         Integer serviceId = 1;
         String clientEmail = "user4@gmail.com";
         Integer subscriptionId = 2;

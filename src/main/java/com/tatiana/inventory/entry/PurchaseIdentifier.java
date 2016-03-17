@@ -5,26 +5,24 @@ public class PurchaseIdentifier {
     private Integer resourceId;
     private String clientEmail;
 
-    public PurchaseIdentifier(){}
-
-    public PurchaseIdentifier(Integer resourceId, String clientEmail){
+    public PurchaseIdentifier(Integer resourceId, String clientEmail) {
         this.resourceId = resourceId;
         this.clientEmail = clientEmail;
     }
 
-    public Integer getResourceId(){
+    public Integer getResourceId() {
         return resourceId;
     }
 
-    public void setResourceId(Integer resourceId){
+    public void setResourceId(Integer resourceId) {
         this.resourceId = resourceId;
     }
 
-    public String getClientEmail(){
+    public String getClientEmail() {
         return clientEmail;
     }
 
-    public void setClientEmail(String clientEmail){
+    public void setClientEmail(String clientEmail) {
         this.clientEmail = clientEmail;
     }
 
