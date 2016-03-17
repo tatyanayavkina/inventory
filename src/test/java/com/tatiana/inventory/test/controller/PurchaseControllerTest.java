@@ -6,6 +6,7 @@ import com.tatiana.inventory.entity.Purchase;
 import com.tatiana.inventory.entry.PurchaseIdentifier;
 import com.tatiana.inventory.repository.ItemRepository;
 import com.tatiana.inventory.repository.PurchaseRepository;
+import com.tatiana.inventory.service.SubscriptionService;
 import com.tatiana.inventory.test.utils.TestUtil;
 import com.tatiana.inventory.test.config.MockApplicationConfiguration;
 import org.jboss.logging.Logger;
@@ -14,6 +15,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -49,6 +51,8 @@ public class PurchaseControllerTest {
     @Autowired
     private ItemRepository itemRepositoryMock;
     @Autowired
+    private SubscriptionService subscriptionService;
+    @Autowired
     private BillingService billingServiceMock;
 
     @Rule
@@ -59,6 +63,7 @@ public class PurchaseControllerTest {
     public void setUp() {
         Mockito.reset(purchaseRepositoryMock);
         Mockito.reset(itemRepositoryMock);
+        Mockito.reset(subscriptionService);
         Mockito.reset(billingServiceMock);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
@@ -178,7 +183,6 @@ public class PurchaseControllerTest {
     }
 
     @Test
-    //todo: error NullPointerException :(
     public void testBuyItem_ShouldReturnNewPurchaseWithStateNOFUNDS() throws Exception{
         Integer itemId = 1;
         String clientEmail = "user4@gmail.com";
@@ -187,8 +191,6 @@ public class PurchaseControllerTest {
 
         Item item = new Item();
         item.setId(itemId);
-        Purchase newPurchase = new Purchase(item, clientEmail);
-
         Purchase createdPurchase = new Purchase(item, clientEmail);
         createdPurchase.setId(purchaseId);
 
@@ -201,7 +203,7 @@ public class PurchaseControllerTest {
 
         when(itemRepositoryMock.findOne(itemId)).thenReturn(item);
         when(purchaseRepositoryMock.findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE)).thenReturn(purchases);
-        when(purchaseRepositoryMock.save(newPurchase)).thenReturn(createdPurchase);
+        when(subscriptionService.createPurchase(item, clientEmail)).thenReturn(createdPurchase);
         when(purchaseRepositoryMock.save(nofundsPurchase)).thenReturn(nofundsPurchase);
         when(billingServiceMock.pay(createdPurchase)).thenReturn(paymentResult);
 
@@ -223,13 +225,14 @@ public class PurchaseControllerTest {
         verify(itemRepositoryMock, times(1)).findOne(itemId);
         verifyNoMoreInteractions(itemRepositoryMock);
         verify(purchaseRepositoryMock, times(1)).findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE);
+        ArgumentCaptor<Purchase> purchaseCaptor = ArgumentCaptor.forClass(Purchase.class);
+        verify(purchaseRepositoryMock, times(1)).save(purchaseCaptor.capture());
         verifyNoMoreInteractions(purchaseRepositoryMock);
-        verify(billingServiceMock, times(1)).pay(newPurchase);
+        verify(billingServiceMock, times(1)).pay(createdPurchase);
         verifyNoMoreInteractions(billingServiceMock);
     }
 
     @Test
-    //todo: error NullPointerException :(
     public void testBuyItem_ShouldReturnNewPurchaseWithStateACTIVE() throws Exception{
         Integer itemId = 1;
         String clientEmail = "user4@gmail.com";
@@ -238,12 +241,10 @@ public class PurchaseControllerTest {
 
         Item item = new Item();
         item.setId(itemId);
-        Purchase newPurchase = new Purchase(item, clientEmail);
-
         Purchase createdPurchase = new Purchase(item, clientEmail);
         createdPurchase.setId(purchaseId);
 
-        Purchase nofundsPurchase = new Purchase(item, clientEmail);
+        Purchase activePurchase = new Purchase(item, clientEmail);
         createdPurchase.setId(purchaseId);
         createdPurchase.setState(Purchase.ItemState.ACTIVE);
 
@@ -253,8 +254,8 @@ public class PurchaseControllerTest {
         when(itemRepositoryMock.findOne(itemId)).thenReturn(item);
         when(purchaseRepositoryMock.findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE)).thenReturn(purchases);
         when(billingServiceMock.pay(createdPurchase)).thenReturn(paymentResult);
-        when(purchaseRepositoryMock.save(newPurchase)).thenReturn(createdPurchase);
-        when(purchaseRepositoryMock.save(nofundsPurchase)).thenReturn(nofundsPurchase);
+        when(subscriptionService.createPurchase(item, clientEmail)).thenReturn(createdPurchase);
+        when(purchaseRepositoryMock.save(activePurchase)).thenReturn(activePurchase);
 
         MvcResult result = mockMvc.perform(post("/purchases")
                         .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -274,8 +275,10 @@ public class PurchaseControllerTest {
         verify(itemRepositoryMock, times(1)).findOne(itemId);
         verifyNoMoreInteractions(itemRepositoryMock);
         verify(purchaseRepositoryMock, times(1)).findByItemAndClientAndState(itemId, clientEmail, Purchase.ItemState.ACTIVE);
+        ArgumentCaptor<Purchase> purchaseCaptor = ArgumentCaptor.forClass(Purchase.class);
+        verify(purchaseRepositoryMock, times(1)).save(purchaseCaptor.capture());
         verifyNoMoreInteractions(purchaseRepositoryMock);
-        verify(billingServiceMock, times(1)).pay(newPurchase);
+        verify(billingServiceMock, times(1)).pay(createdPurchase);
         verifyNoMoreInteractions(billingServiceMock);
     }
 }

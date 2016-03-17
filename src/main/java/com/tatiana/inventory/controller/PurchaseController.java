@@ -6,6 +6,7 @@ import com.tatiana.inventory.entity.Purchase;
 import com.tatiana.inventory.entry.PurchaseIdentifier;
 import com.tatiana.inventory.repository.ItemRepository;
 import com.tatiana.inventory.repository.PurchaseRepository;
+import com.tatiana.inventory.service.SubscriptionService;
 import org.hibernate.ObjectNotFoundException;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +24,17 @@ import java.util.concurrent.CompletableFuture;
 public class PurchaseController {
     private final ItemRepository itemRepository;
     private final PurchaseRepository purchaseRepository;
+    private final SubscriptionService subscriptionService;
     private final BillingService billingService;
 
     private final Logger logger = Logger.getLogger(PurchaseController.class);
 
     @Autowired
     public PurchaseController(ItemRepository itemRepository, PurchaseRepository purchaseRepository,
-                              BillingService billingService){
+                              SubscriptionService subscriptionService,BillingService billingService){
         this.itemRepository = itemRepository;
         this.purchaseRepository = purchaseRepository;
+        this.subscriptionService = subscriptionService;
         this.billingService = billingService;
     }
 
@@ -53,18 +56,18 @@ public class PurchaseController {
 
         Purchase purchase = findByItemAndClientAndState(itemId, email, Purchase.ItemState.ACTIVE);
         if (purchase == null){
-            purchase = new Purchase(item, email);
-            Purchase newPurchase = purchaseRepository.save(purchase);
+            // todo: как-то исправить!
+            Purchase createdPurchase = subscriptionService.createPurchase(item, email);
 
-            return billingService.pay(newPurchase).thenApply(
+            return billingService.pay(createdPurchase).thenApply(
                     (success) -> {
                         if (success) {
-                            newPurchase.setState(Purchase.ItemState.ACTIVE);
+                            createdPurchase.setState(Purchase.ItemState.ACTIVE);
                         } else {
-                            newPurchase.setState(Purchase.ItemState.NOFUNDS);
+                            createdPurchase.setState(Purchase.ItemState.NOFUNDS);
                         }
-                        purchaseRepository.save(newPurchase);
-                        return new ResponseEntity(newPurchase, HttpStatus.OK);
+                        purchaseRepository.save(createdPurchase);
+                        return new ResponseEntity(createdPurchase, HttpStatus.OK);
                     }
             );
         }
