@@ -4,11 +4,11 @@ import com.tatiana.inventory.entity.Purchase;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-
-//@Repository
+@Repository
 public interface PurchaseRepository extends JpaRepository<Purchase, Integer> {
 
     @Query("select p from Purchase p where p.item.id = :itemId and p.client = :client " +

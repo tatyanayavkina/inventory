@@ -10,6 +10,8 @@ public class PurchaseIdentifier {
         this.clientEmail = clientEmail;
     }
 
+    public PurchaseIdentifier(){}
+
     public Integer getResourceId() {
         return resourceId;
     }

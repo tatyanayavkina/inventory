@@ -21,7 +21,7 @@ public interface SubscriptionService {
      *
      * @param item - Item
      * @param email - String
-     * @return
+     * @return Purchase
      */
     Purchase createPurchase(Item item, String email);
 }

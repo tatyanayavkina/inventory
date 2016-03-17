@@ -8,7 +8,6 @@ import com.tatiana.inventory.repository.ItemRepository;
 import com.tatiana.inventory.repository.PurchaseRepository;
 import com.tatiana.inventory.service.SubscriptionService;
 import org.hibernate.ObjectNotFoundException;
-import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
