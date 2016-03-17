@@ -35,7 +35,6 @@ import static org.mockito.Mockito.*;
 @SpringApplicationConfiguration(classes = MockApplicationConfiguration.class)
 @WebAppConfiguration
 public class SubscriptionTaskTest {
-    private MockMvc mockMvc;
     @Autowired
     private WebApplicationContext webApplicationContext;
     @Autowired
@@ -52,7 +51,7 @@ public class SubscriptionTaskTest {
         Mockito.reset(subscriptionRepositoryMock);
         Mockito.reset(subscriptionServiceMock);
         Mockito.reset(billingServiceMock);
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
 
     @Test
