@@ -1,5 +1,6 @@
 package com.tatiana.inventory.test.scheduler;
 
+import com.nitorcreations.junit.runners.NestedRunner;
 import com.tatiana.inventory.billing.BillingService;
 import com.tatiana.inventory.entity.Service;
 import com.tatiana.inventory.entity.Subscription;
@@ -14,12 +15,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,28 +27,22 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings("SpringJavaAutowiredMembersInspection")
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = MockApplicationConfiguration.class)
-@WebAppConfiguration
+@RunWith(NestedRunner.class)
 public class SubscriptionTaskTest {
-    @Autowired
-    private WebApplicationContext webApplicationContext;
-    @Autowired
     private SubscriptionRepository subscriptionRepositoryMock;
-    @Autowired
     private SubscriptionService subscriptionServiceMock;
-    @Autowired
     private BillingService billingServiceMock;
-    @Autowired
     private SubscriptionTask subscriptionTask;
 
     @Before
     public void setUp() {
-        Mockito.reset(subscriptionRepositoryMock);
-        Mockito.reset(subscriptionServiceMock);
-        Mockito.reset(billingServiceMock);
-        MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        subscriptionRepositoryMock = Mockito.mock(SubscriptionRepository.class);
+        subscriptionServiceMock = Mockito.mock(SubscriptionService.class);
+        billingServiceMock = Mockito.mock(BillingService.class);
+        subscriptionTask = new SubscriptionTask(subscriptionRepositoryMock, subscriptionServiceMock, billingServiceMock);
+//        Mockito.reset(subscriptionRepositoryMock);
+//        Mockito.reset(subscriptionServiceMock);
+//        Mockito.reset(billingServiceMock);
     }
 
     @Test

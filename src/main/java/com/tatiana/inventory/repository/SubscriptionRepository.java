@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Date;
 import java.util.List;
 
-@Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription, Integer> {
 
     @Query("select s from Subscription s where s.service.id = :serviceId and s.client = :client " +

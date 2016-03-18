@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
 
-@Service
 public class BillingServiceImpl implements BillingService {
     private static final Logger logger = Logger.getLogger(BillingServiceImpl.class);
 

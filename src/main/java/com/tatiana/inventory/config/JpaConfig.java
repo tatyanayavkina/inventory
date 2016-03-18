@@ -58,18 +58,6 @@ class JpaConfig implements TransactionManagementConfigurer {
         return new HikariDataSource(config);
     }
 
-//    @Profile("test")
-//    @Bean
-//    public DataSource configureDataSource(){
-//        final BasicDataSource dataSource = new BasicDataSource();
-//        dataSource.setDriverClassName(driver);
-//        dataSource.setUrl(url);
-//        dataSource.setUsername(username);
-//        dataSource.setPassword(password);
-//
-//        return dataSource;
-//    }
-
     @Bean(name = "entityManagerFactory")
     public LocalContainerEntityManagerFactoryBean configureEntityManagerFactory() {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
@@ -100,7 +88,6 @@ class JpaConfig implements TransactionManagementConfigurer {
         return new AuditingDateTimeProvider(dateTimeService);
     }
 
-    //    @Profile(Profiles.APPLICATION)
     @Bean
     DateTimeService currentTimeDateTimeService() {
         return new CurrentTimeDateTimeService();

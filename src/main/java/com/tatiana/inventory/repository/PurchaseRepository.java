@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface PurchaseRepository extends JpaRepository<Purchase, Integer> {
 
     @Query("select p from Purchase p where p.item.id = :itemId and p.client = :client " +

@@ -41,7 +41,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringApplicationConfiguration(classes = MockApplicationConfiguration.class)
 @WebAppConfiguration
 public class PurchaseControllerTest {
-    // --Commented out by Inspection (17.03.2016 17:08):private final Logger logger = Logger.getLogger(PurchaseControllerTest.class);
     @Rule
     public ExpectedException exception = ExpectedException.none();
     private MockMvc mockMvc;

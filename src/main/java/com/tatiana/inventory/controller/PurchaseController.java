@@ -26,8 +26,6 @@ public class PurchaseController {
     private final PurchaseService purchaseService;
     private final BillingService billingService;
 
-    // --Commented out by Inspection (17.03.2016 17:08):private final Logger logger = Logger.getLogger(PurchaseController.class);
-
     @Autowired
     public PurchaseController(ItemRepository itemRepository, PurchaseRepository purchaseRepository,
                               PurchaseService purchaseService, BillingService billingService) {
@@ -44,7 +42,6 @@ public class PurchaseController {
      * @return HttpEntity<Purchase>
      * @throws ObjectNotFoundException
      */
-    @SuppressWarnings("unchecked")
     @Async
     @RequestMapping(method = RequestMethod.POST)
     public CompletableFuture<HttpEntity<Purchase>> buyItem(@RequestBody PurchaseIdentifier identifier) throws ObjectNotFoundException {
@@ -54,10 +51,8 @@ public class PurchaseController {
         if (item == null) {
             throw new ObjectNotFoundException(itemId, Item.class.getName());
         }
-
-        Purchase purchase = findByItemAndClientAndStateActive(itemId, email);
-        if (purchase == null) {
-            // todo: как-то исправить!
+        List<Purchase> purchases = purchaseRepository.findByItemAndClientAndStateActive(itemId, email);
+        if (purchases.size() == 0) {
             Purchase createdPurchase = purchaseService.createPurchase(item, email);
 
             return billingService.pay(createdPurchase).thenApply(
@@ -72,6 +67,7 @@ public class PurchaseController {
                     }
             );
         }
+        Purchase purchase = purchases.get(0);
 
         return CompletableFuture.completedFuture(new ResponseEntity(purchase, HttpStatus.OK));
     }
@@ -83,26 +79,17 @@ public class PurchaseController {
      * @param email  - String
      * @return HttpEntity<Boolean>
      */
-    @SuppressWarnings("unchecked")
     @RequestMapping(value = "/info", method = RequestMethod.GET)
     public HttpEntity<Boolean> isClientHasPurchase(@RequestParam("itemId") Integer itemId, @RequestParam("email") String email) {
         Boolean clientHasActivePurchase = true;
-        Purchase purchase = findByItemAndClientAndStateActive(itemId, email);
+        List<Purchase> purchases = purchaseRepository.findByItemAndClientAndStateActive(itemId, email);
 
-        if (purchase == null) {
+        if (purchases.size() == 0) {
             clientHasActivePurchase = false;
         }
 
         return new ResponseEntity(clientHasActivePurchase, HttpStatus.OK);
     }
 
-    private Purchase findByItemAndClientAndStateActive(Integer itemId, String clientEmail) {
-        Purchase purchase = null;
-        List<Purchase> purchases = purchaseRepository.findByItemAndClientAndStateActive(itemId, clientEmail);
-        if (purchases.size() > 0) {
-            purchase = purchases.get(0);
-        }
-        return purchase;
-    }
 
 }

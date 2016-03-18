@@ -42,7 +42,6 @@ public class SubscriptionController {
      * @return HttpEntity<Subscription>
      * @throws ObjectNotFoundException
      */
-    @SuppressWarnings("unchecked")
     @Async
     @RequestMapping(method = RequestMethod.POST)
     public CompletableFuture<HttpEntity<Subscription>> buyService(@RequestBody PurchaseIdentifier identifier) throws ObjectNotFoundException {
@@ -76,7 +75,6 @@ public class SubscriptionController {
      * @param email     - String
      * @return HttpEntity<Boolean>
      */
-    @SuppressWarnings("unchecked")
     @RequestMapping(value = "/info", method = RequestMethod.GET)
     public HttpEntity<Boolean> isClientHasSubscription(@RequestParam("serviceId") Integer serviceId, @RequestParam("email") String email) {
         Boolean clientHasActiveSubscription = false;

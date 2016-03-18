@@ -37,7 +37,6 @@ public class SubscriptionTest {
     }
 
     private void setSubscriptions() {
-        // ------
         lastActiveSubscription1 = new Subscription();
         lastActiveSubscription1.setService(service1);
         lastActiveSubscription1.setState(Subscription.ServiceState.ACTIVE);
@@ -49,7 +48,7 @@ public class SubscriptionTest {
         lastExpiredSubscription1.setState(Subscription.ServiceState.EXPIRED);
         lastExpiredSubscription1.setStartDate(TestUtil.getDateFromString("2016-03-13 15:13:28"));
         lastExpiredSubscription1.setEndDate(TestUtil.getDateFromString("2016-03-14 15:13:28"));
-        // -----
+
         lastActiveSubscription2 = null;
 
         lastExpiredSubscription2 = new Subscription();

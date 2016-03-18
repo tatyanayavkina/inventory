@@ -8,11 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
-
-    // --Commented out by Inspection (17.03.2016 17:12):private final Logger logger = Logger.getLogger(SubscriptionServiceImpl.class);
 
     @Autowired
     public SubscriptionServiceImpl(SubscriptionRepository subscriptionRepository) {
@@ -25,7 +22,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         Subscription lastActiveSubscription = getLastSubscriptionByServiceAndClientAndState(service.getId(), clientEmail, Subscription.ServiceState.ACTIVE);
         Subscription lastExpiredSubscription = getLastSubscriptionByServiceAndClientAndState(service.getId(), clientEmail, Subscription.ServiceState.EXPIRED);
         subscription.calculateStartAndEndDate(lastActiveSubscription, lastExpiredSubscription);
-//        return subscriptionRepository.save(subscription);
         return subscription;
     }
 
