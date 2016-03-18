@@ -7,16 +7,12 @@ import com.tatiana.inventory.entity.Subscription;
 import com.tatiana.inventory.repository.SubscriptionRepository;
 import com.tatiana.inventory.scheduler.SubscriptionTask;
 import com.tatiana.inventory.service.SubscriptionService;
-import com.tatiana.inventory.test.config.MockApplicationConfiguration;
 import com.tatiana.inventory.test.utils.TestUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,9 +36,6 @@ public class SubscriptionTaskTest {
         subscriptionServiceMock = Mockito.mock(SubscriptionService.class);
         billingServiceMock = Mockito.mock(BillingService.class);
         subscriptionTask = new SubscriptionTask(subscriptionRepositoryMock, subscriptionServiceMock, billingServiceMock);
-//        Mockito.reset(subscriptionRepositoryMock);
-//        Mockito.reset(subscriptionServiceMock);
-//        Mockito.reset(billingServiceMock);
     }
 
     @Test
