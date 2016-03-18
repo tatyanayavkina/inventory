@@ -30,12 +30,18 @@ public class SubscriptionTaskTest {
     private BillingService billingServiceMock;
     private SubscriptionTask subscriptionTask;
 
-    @Before
-    public void setUp() {
+    public SubscriptionTaskTest(){
         subscriptionRepositoryMock = Mockito.mock(SubscriptionRepository.class);
         subscriptionServiceMock = Mockito.mock(SubscriptionService.class);
         billingServiceMock = Mockito.mock(BillingService.class);
         subscriptionTask = new SubscriptionTask(subscriptionRepositoryMock, subscriptionServiceMock, billingServiceMock);
+    }
+
+    @Before
+    public void setUp() {
+        Mockito.reset(subscriptionRepositoryMock);
+        Mockito.reset(subscriptionServiceMock);
+        Mockito.reset(billingServiceMock);
     }
 
     @Test
